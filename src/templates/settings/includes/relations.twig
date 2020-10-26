@@ -1,0 +1,54 @@
+{% import "_includes/forms" as forms %}
+
+<h2>E-conomic / Webshop relations</h2>
+<div class="flex-fields">
+
+	<div class="field width-50">
+		<div>
+			{{ forms.editableTableField({
+				label: 'Gateway payment terms',
+				instructions: "Connect gateways to a paymentterm. If a gateway isn't connected to a paymentterm, the default value of the customer is used",
+				id: 'gatewayPaymentTerms',
+				name: 'gatewayPaymentTerms',
+				cols: [
+					{
+						heading : 'Gateway',
+						type: 'select',
+						options: gateways
+					},
+					{
+						heading : 'Paymentterm',
+						type: 'select',
+						options: paymentTerms
+					},
+				],
+				rows: settings.gatewayPaymentTerms
+			}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.editableTableField({
+				label: 'Tax rate setup',
+				instructions: "Connext comerce tax rates to vatzones in E-conomic",
+				id: 'vatZones',
+				name: 'vatZones',
+				cols: [
+					{
+						heading : 'Tax rates',
+						type: 'select',
+						options: taxrastes
+					},
+					{
+						heading : 'VAT Zones',
+						type: 'select',
+						options: vatZones
+					},
+				],
+				rows: settings.vatZones
+			}) }}
+		</div>
+	</div>
+</div>
+<hr>

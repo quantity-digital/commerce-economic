@@ -1,0 +1,19 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\cp\\CpAsset') %}
+<div id="content">
+	<h1>Visma E-conomic settings</h1>
+	{% if not settings.grantToken or not settings.secretToken %}
+		<div class="readable">
+			<blockquote class="note warning">To setup the Visma E-conomic integration, first save the grant token and secret token</blockquote>
+		</div>
+	{% endif %}
+	{% include 'commerce-economic/settings/includes/authorization' %}
+
+	{% if settings.grantToken and settings.secretToken %}
+
+		{% include 'commerce-economic/settings/includes/defaults' %}
+		{% include 'commerce-economic/settings/includes/invoicing' %}
+		{% include 'commerce-economic/settings/includes/relations' %}
+
+	{% endif %}
+
+</div>

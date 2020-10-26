@@ -1,0 +1,33 @@
+{% from "_includes/forms" import textField, lightswitchField, selectField, autosuggestField, multiSelectField %}
+
+<h2>Authorization keys</h2>
+<div class="flex-fields">
+	<div class="field width-50">
+		{{ autosuggestField({
+			label: "Grant token"|t('commerce-quickpay'),
+			instructions: 'API key obtained from the Quickpay control panel'|t('commerce-quickpay'),
+			id: 'grantToken',
+			class: 'ltr',
+			name: 'grantToken',
+			suggestEnvVars: true,
+			value: settings.grantToken,
+			errors: settings.getErrors('grantToken'),
+			required: true,
+		}) }}
+	</div>
+
+	<div class="field width-50">
+		{{ autosuggestField({
+			label: "Secret token"|t('commerce-quickpay'),
+			instructions: 'Private key optained from the Quickpay controle panel'|t('commerce-quickpay'),
+			id: 'secretToken',
+			class: 'ltr',
+			name: 'secretToken',
+			suggestEnvVars: true,
+			value: settings.secretToken,
+			errors: settings.getErrors('secretToken'),
+			required: true,
+		}) }}
+	</div>
+</div>
+<hr>

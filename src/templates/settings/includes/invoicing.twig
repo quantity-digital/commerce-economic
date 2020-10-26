@@ -1,0 +1,82 @@
+{% import "_includes/forms" as forms %}
+
+<h2>Invoicing</h2>
+<div class="flex-fields">
+
+	<div class="field width-50">
+		<div>
+			{{ forms.lightswitchField({
+			label: "Enable invoicing"|t,
+			id: 'invoiceEnabled',
+			name: 'invoiceEnabled',
+			instructions: "If checked, completed orders with the selected invoice status will be created in E-conomic"|t('commerce-economic'),
+			value: 1,
+			errors: settings.getErrors('invoiceEnabled'),
+			on: (settings.invoiceEnabled is defined) ? settings.invoiceEnabled : 0,
+		}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.lightswitchField({
+			label: "Auto book invoice"|t,
+			id: 'autoBookInvoice',
+			name: 'autoBookInvoice',
+			instructions: "If checked, the created invoice draft will automaticly be booked"|t('commerce-economic'),
+			value: 1,
+			errors: settings.getErrors('autoBookInvoice'),
+			on: (settings.autoBookInvoice is defined) ? settings.autoBookInvoice : 0,
+		}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.selectField({
+				first: true,
+				label: 'Invoice on status'|t('commerce-economic'),
+				instructions: 'On what status should orders be invoiced'|t('commerce-economic'),
+				id: 'invoiceOnStatusId',
+				name: 'invoiceOnStatusId',
+				options : statusOptions,
+				value : settings.invoiceOnStatusId,
+				errors: settings.getErrors('invoiceOnStatusId') ?? null,
+				required: true,
+			}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.selectField({
+				first: true,
+				label: 'Orderstatus after'|t('commerce-economic'),
+				instructions: 'What status should order be assigned after invoicing'|t('commerce-economic'),
+				id: 'statusIdAfterInvoice',
+				name: 'statusIdAfterInvoice',
+				options : statusOptions,
+				value : settings.statusIdAfterInvoice,
+				errors: settings.getErrors('statusIdAfterInvoice') ?? null,
+				required: true,
+			}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.selectField({
+				first: true,
+				label: 'Invoice layout'|t('commerce-economic'),
+				instructions: 'What layout should be usen when creating invoice'|t('commerce-economic'),
+				id: 'invoiceLayoutNumber',
+				name: 'invoiceLayoutNumber',
+				options : layouts,
+				value : settings.invoiceLayoutNumber,
+				errors: settings.getErrors('invoiceLayoutNumber') ?? null,
+				required: true,
+			}) }}
+		</div>
+	</div>
+</div>
+<hr>
