@@ -13,6 +13,7 @@ class Customer extends Model
 	public $vatZone;
 	public $paymentTerms;
 	public $name;
+	public $corporateIdentificationNumber;
 
 	public static function transformFromOrder($order)
 	{
@@ -46,7 +47,16 @@ class Customer extends Model
 		$customer->setName($object->name);
 		$customer->setCustomerGroup(CustomerGroup::transform($object->customerGroup));
 		$customer->setPaymentTerms(PaymentTerms::transform($object->paymentTerms));
+		$customer->setCorporateIdentificationNumber($object->setCorporateIdentificationNumber);
 		return $customer;
+	}
+
+	public function setCorporateIdentificationNumber($value){
+		$this->corporateIdentificationNumber = $value;
+		return $this;
+	}
+	public function getCorporateIdentificationNumber(){
+		return $this->corporateIdentificationNumber;
 	}
 
 	public function setCustomerNumber($value)

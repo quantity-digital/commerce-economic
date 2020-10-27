@@ -47,6 +47,7 @@ class Customers extends Component
 		$customer->setName(($order->getBillingAddress()->businessName) ? $order->getBillingAddress()->businessName : $order->getBillingAddress()->firstName . ' ' . $order->getBillingAddress()->lastName);
 		$customer->setPaymentTerms(PaymentTerms::transformFromOrder($order));
 		$customer->setVatZone(VatZone::transformFromOrder($order));
+		$customer->setCorporateIdentificationNumber($order->getBillingAddress()->businessTaxId);
 
 		//Removing empty custonerNumber
 		unset($customer->customerNumber);
@@ -55,7 +56,7 @@ class Customers extends Component
 
 		$status = $response->httpStatus();
 
-		if ($status == 200) {
+		if ($status == 201) {
 			return $response;
 		}
 
