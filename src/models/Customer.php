@@ -8,6 +8,7 @@ use QD\commerce\economic\Economic;
 class Customer extends Model
 {
 
+	public $currency;
 	public $customerNumber;
 	public $vatZone;
 	public $paymentTerms;
@@ -20,6 +21,7 @@ class Customer extends Model
 		//Check for business customer
 		$customerData = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($billingAddress->businessTaxId);
 
+		//TODO add default customer option check
 		//Check for private customer if no business
 		if (!$customerData) {
 			$customerData = Economic::getInstance()->getCustomers()->getCustomerByEmail($order->email);
@@ -38,6 +40,7 @@ class Customer extends Model
 	public static function transform($object)
 	{
 		$customer = new self();
+		$customer->setCurrency($object->currency);
 		$customer->setCustomerNumber($object->customerNumber);
 		$customer->setVatZone(VatZone::transform($object->vatZone));
 		$customer->setName($object->name);
@@ -97,6 +100,17 @@ class Customer extends Model
 		return $this->vatZone;
 	}
 
+	public function setCurrency(string $value)
+	{
+		$this->currency = $value;
+		return $this;
+	}
+	public function getCurrency()
+	{
+		return $this->currency;
+	}
+
+	/** Helpers */
 	public function asArray()
 	{
 		return (array) $this;
