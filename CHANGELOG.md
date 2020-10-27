@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.9 - 2020-10-28
+
+### Changed
+
+* Removed unnessesary log
+
+### Fixed
+
+* Fixed OrderQuery returning null qhen query on custom attributes
+* Fixed EVENT_AFTER_INVOICE_BOOKING beeing trigger twice
+
 ## 1.0.8 - 2020-10-27
 
 ### Fixed
@@ -52,3 +63,5 @@ All notable changes to this project will be documented in this file.
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
+
+
