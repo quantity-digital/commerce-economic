@@ -22,4 +22,8 @@ class Layout extends Model
 		return $this;
 	}
 
+	public function getLayoutNumber(){
+		return $this->layoutNumber;
+	}
+
 }

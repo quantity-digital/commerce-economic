@@ -4,6 +4,10 @@ namespace QD\commerce\economic\services;
 
 use craft\base\Component;
 use QD\commerce\economic\Economic;
+use QD\commerce\economic\models\Customer;
+use QD\commerce\economic\models\CustomerGroup;
+use QD\commerce\economic\models\PaymentTerms;
+use QD\commerce\economic\models\VatZone;
 
 class Customers extends Component
 {
@@ -36,6 +40,21 @@ class Customers extends Component
 
 	public function createCustomerFromOrder($order)
 	{
+		$customer = new Customer();
+		$customer->setCustomerGroup(new CustomerGroup());
+		$customer->name(($order->getBillingAddress()->businessName) ? $order->getBillingAddress()->businessName : $order->getBillingAddress()->firstName . ' ' . $order->getBillingAddress()->lastName);
+		$customer->setPaymentTerms(PaymentTerms::transformFromOrder($order));
+		$customer->setVatZone(VatZone::transformFromOrder($order));
+
+		$response = Economic::getInstance()->getApi()->client->request->post('customers',$customer->asArra());
+
+		$status = $response->httpStatus();
+
+		if ($status == 200) {
+			return $response;
+		}
+
+		return false;
 	}
 
 	public function getAllCustomerGroups()

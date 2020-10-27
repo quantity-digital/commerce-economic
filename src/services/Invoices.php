@@ -66,7 +66,7 @@ class Invoices extends Component
 		}
 
 		$params = [
-			"draftInvoice" => $draftInvoice->asObject()->collection[0]
+			"draftInvoice" => $draftInvoice->asObject()
 		];
 
 		$response = Economic::getInstance()->getApi()->client->request->post('/invoices/booked/', $params);

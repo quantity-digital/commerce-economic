@@ -17,7 +17,7 @@ class PaymentTerms extends Model
 	}
 
 	public static function transformFromOrder($order){
-		$vatZone = new self();
+		$paymentTerms = new self();
 
 		//Key 0 = gateway id
 		//Key 1 = paymentterm number
@@ -26,16 +26,27 @@ class PaymentTerms extends Model
 		$gatewayRelations = Economic::getInstance()->getSettings()->gatewayPaymentTerms;
 			foreach($gatewayRelations as $gatewayRelation){
 				if($gatewayRelations[0] == $gatewayId){
-					$vatZone->setPaymentTermsNumber($gatewayRelation[1]);
+					$paymentTerms->setPaymentTermsNumber($gatewayRelation[1]);
 				}
 			}
 
-		return $vatZone;
+		return $paymentTerms;
+	}
+
+	public static function transform($object){
+		$paymentTerms = new self();
+		$paymentTerms->setPaymentTermsNumber($object->paymentTermsNumber);
+		return $paymentTerms;
 	}
 
 	public function setPaymentTermsNumber(int $value)
 	{
 		$this->paymentTermsNumber = $value;
 		return $this;
+	}
+
+	public function getPaymentTermsNumber(int $value)
+	{
+		return $this->paymentTermsNumber;
 	}
 }

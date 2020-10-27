@@ -35,9 +35,20 @@ class VatZone extends Model
 		return $vatZone;
 	}
 
+	public static function transform($object)
+	{
+		$vatZone = new self();
+		$vatZone->setVatZoneNumber($object->vatZoneNumber);
+		return $vatZone;
+	}
+
 	public function setVatZoneNumber(int $value)
 	{
 		$this->vatZoneNumber = $value;
 		return $this;
+	}
+
+	public function getVatZoneNumber(){
+		return $this->vatZoneNumber;
 	}
 }

@@ -292,7 +292,7 @@ class Economic extends \craft\base\Plugin
 	}
 
 	/**
-	 * Logging
+	 * Logging function
 	 */
 
 	public static function log($message)

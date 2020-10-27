@@ -2,9 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 1.0.3 - 2020-10-27
 
-## 1.0.2 -2020-10-27
+### Added
+
+* Added `QD\commerce\economic\models\CustomerGroup` model
+* Added getter functions to all models
+* Added `QD\commerce\economic\services\Invoices\createCustomerFromOrder` function, which returns the customer object from E-conomic
+
+### Fixed
+
+* Fixed missing function to create a customer, if none exists in E-conomic
+* Fixed error in `QD\commerce\economic\services\Invoices\bookInvoiceDraft` where it was trying to fetch collection data instead of the response object
+
+## 1.0.2 - 2020-10-27
 
 ### Added
 
