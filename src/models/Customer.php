@@ -30,7 +30,6 @@ class Customer extends Model
 		$response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($billingAddress->businessTaxId);
 
 		if($response && isset($response->asObject()->collection[0])){
-			Economic::log(\var_dump($response));
 			$customerData = $response->asObject()->collection[0];
 		}
 

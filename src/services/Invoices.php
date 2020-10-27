@@ -79,7 +79,6 @@ class Invoices extends Component
 				'response' => $response
 			]);
 
-			$this->trigger(self::EVENT_AFTER_INVOICE_BOOKING, $event);
 			if ($this->hasEventHandlers(self::EVENT_AFTER_INVOICE_BOOKING)) {
 				$this->trigger(self::EVENT_AFTER_INVOICE_BOOKING, $event);
 			}

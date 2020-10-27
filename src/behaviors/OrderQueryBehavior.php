@@ -24,7 +24,7 @@ class OrderQueryBehavior extends Behavior
 	public function events()
 	{
 		return [
-			ElementQuery::EVENT_AFTER_PREPARE => [$this, 'afterPrepare'],
+			ElementQuery::EVENT_BEFORE_PREPARE => [$this, 'beforePrepare'],
 		];
 	}
 
@@ -53,14 +53,15 @@ class OrderQueryBehavior extends Behavior
 	/**
 	 * Prepares the user query.
 	 */
-	public function afterPrepare()
+	public function beforePrepare()
 	{
 		if ($this->owner->select === ['COUNT(*)']) {
 			return;
 		}
 
 		// Join our `orderextras` table:
-		$this->owner->query->leftJoin('economic_orders economic', '`economic`.`id` = `elements`.`id`');
+		$this->owner->query->leftJoin('economic_orders economic', '`economic`.`id` = `commerce_orders`.`id`');
+		$this->owner->subQuery->leftJoin('economic_orders economic', '`economic`.`id` = `commerce_orders`.`id`');
 
 		// Select custom columns:
 		$this->owner->query->addSelect([
@@ -68,12 +69,12 @@ class OrderQueryBehavior extends Behavior
 			'economic.draftInvoiceNumber',
 		]);
 
-		if ($this->invoiceNumber) {
-			$this->owner->query->andWhere(Db::parseParam('economic.invoiceNumber', $this->invoiceNumber));
+		if (!is_null($this->invoiceNumber)) {
+			$this->owner->subQuery->andWhere(Db::parseParam('economic.invoiceNumber', $this->invoiceNumber));
 		}
 
-		if ($this->draftInvoiceNumber) {
-			$this->owner->query->andWhere(Db::parseParam('economic.draftInvoiceNumber', $this->draftInvoiceNumber));
+		if (!is_null($this->draftInvoiceNumber)) {
+			$this->owner->subQuery->andWhere(Db::parseParam('economic.draftInvoiceNumber', $this->draftInvoiceNumber));
 		}
 
 	}
