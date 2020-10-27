@@ -49,7 +49,7 @@ class Invoice extends Model
 		$invoice->setRecipient(Recipient::transformFromOrder($order));
 		$invoice->setLines(Economic::getInstance()->getOrders()->getOrderLines($order));
 		$invoice->setCustomer(Customer::transformFromOrder($order)); //Get via API
-		$invoice->setReference([
+		$invoice->setReferences([
 			'other' => $order->reference
 		]);
 
@@ -61,9 +61,17 @@ class Invoice extends Model
 		return $this;
 	}
 
+	public function getCurrency(){
+		return $this->currency;
+	}
+
 	public function setCustomer(Customer $value){
 		$this->customer = $value;
 		return $this;
+	}
+
+	public function getCustomer(){
+		return $this->customer;
 	}
 
 	public function setDate($value){
@@ -71,9 +79,17 @@ class Invoice extends Model
 		return $this;
 	}
 
+	public function getDate(){
+		return $this->date;
+	}
+
 	public function setLayout(Layout $value){
 		$this->layout = $value;
 		return $this;
+	}
+
+	public function getLayout(){
+		return $this->layout;
 	}
 
 	public function setPaymentTerms($value){
@@ -81,9 +97,17 @@ class Invoice extends Model
 		return $this;
 	}
 
+	public function getPaymentTerms(){
+		return $this->paymentTerms;
+	}
+
 	public function setRecipient(Recipient $value){
 		$this->recipient = $value;
 		return $this;
+	}
+
+	public function getRecipient(){
+		return $this->recipient;
 	}
 
 	public function setLines(array $value){
@@ -91,9 +115,17 @@ class Invoice extends Model
 		return $this;
 	}
 
-	public function setReference(array $value){
+	public function getLines(array $value){
+		return $this->lines;
+	}
+
+	public function setReferences(array $value){
 		$this->references = $value;
 		return $this;
+	}
+
+	public function getReferences(array $value){
+		return $this->references;
 	}
 
 

@@ -28,27 +28,33 @@ class BookInvoice extends BaseJob implements RetryableJobInterface
 
 	public function execute($queue)
 	{
-		$order = Order::find()->id($this->orderId)->one();
-		$this->setProgress($queue, 0.05);
+		try {
+			$order = Order::find()->id($this->orderId)->one();
+			$this->setProgress($queue, 0.05);
 
-		if ($order) {
+			if ($order) {
+				$response = Economic::getInstance()->getInvoices()->bookInvoiceDraft($order->draftInvoiceNumber);
+				$this->setProgress($queue, 0.5);
 
-			$response = Economic::getInstance()->getInvoices()->bookInvoiceDraft($order->draftInvoiceNumber);
-			$this->setProgress($queue, 0.5);
+				if (!$response) {
+					$this->reAddToQueue();
+				}
 
-			if (!$response) {
+				$this->setProgress($queue, 0.90);
+
+				if ($response) {
+					$invoice = $response->asObject();
+					$order->invoiceNumber = $invoice->bookedInvoiceNumber;
+					Craft::$app->getElements()->saveElement($order);
+				}
+
+				$this->setProgress($queue, 1);
+			}else{
 				$this->reAddToQueue();
+				$this->setProgress($queue, 1);
 			}
-
-			$this->setProgress($queue, 0.90);
-
-			if ($response) {
-				$invoice = $response->asObject();
-				$order->invoiceNumber = $invoice->bookedInvoiceNumber;
-				Craft::$app->getElements()->saveElement($order);
-			}
-
-			$this->setProgress($queue, 1);
+		} catch (\Throwable $th) {
+			$this->reAddToQueue();
 		}
 	}
 
@@ -62,7 +68,7 @@ class BookInvoice extends BaseJob implements RetryableJobInterface
 
 	protected function reAddToQueue()
 	{
-		Craft::$app->getQueue()->delay(10)->push(new BookInvoice(
+		Craft::$app->getQueue()->delay(300)->push(new BookInvoice(
 			[
 				'orderId' => $this->orderId,
 			]

@@ -28,5 +28,5 @@ cd /path/to/my-project.test
 composer require quantity-digital/commerce-economic
 
 # tell Craft to install the plugin
-./craft install/plugin quantity-digital/commerce-economic
+./craft install/plugin commerce-economic
 ```

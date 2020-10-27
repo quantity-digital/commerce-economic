@@ -28,55 +28,60 @@ class CreateInvoice extends BaseJob
 
 	public function execute($queue)
 	{
-		$order = Order::find()->id($this->orderId)->one();
-		$this->setProgress($queue, 0.05);
+		try {
+			$order = Order::find()->id($this->orderId)->one();
+			$this->setProgress($queue, 0.05);
 
-		if (!$order) {
-			Craft::error('Unable to fetch order with id' . $this->orderId, __METHOD__);
+			if (!$order) {
+				Craft::error('Unable to fetch order with id' . $this->orderId, __METHOD__);
+				$this->setProgress($queue, 1);
+				return;
+			}
+
+			if ($order->invoiceNumber) {
+				Craft::error('Order has alreade an invoice number, on order with id ' . $this->orderId, __METHOD__);
+				$this->setProgress($queue, 1);
+				return;
+			}
+
+			$this->setProgress($queue, 0.1);
+			$response = Economic::getInstance()->getInvoices()->createFromOrder($order);
+			$this->setProgress($queue, 0.5);
+
+			if (!$response) {
+				$this->reAddToQueue();
+				$this->setProgress($queue, 1);
+				return;
+			}
+
+			$this->setProgress($queue, 0.90);
+
+			if ($response) {
+				$invoice = $response->asObject();
+				$this->setProgress($queue, 0.91);
+				$order->draftInvoiceNumber = (int) $invoice->draftInvoiceNumber;
+				$this->setProgress($queue, 0.92);
+				$this->setProgress($queue, 0.93);
+				Craft::$app->getElements()->saveElement($order);
+				$order->setStatus(Economic::getInstance()->getSettings()->statusIdAfterInvoice);
+				$this->setProgress($queue, 0.94);
+			}
+
+			$this->setProgress($queue, 0.95);
+
+			if (Economic::getInstance()->getSettings()->autoBookInvoice) {
+				Craft::$app->getQueue()->delay(10)->push(new BookInvoice(
+					[
+						'orderId' => $order->id,
+					]
+				));
+			}
+
 			$this->setProgress($queue, 1);
-			return;
-		}
-
-		if ($order->invoiceNumber) {
-			Craft::error('Order has alreade an invoice number, on order with id ' . $this->orderId, __METHOD__);
-			$this->setProgress($queue, 1);
-			return;
-		}
-
-		$this->setProgress($queue, 0.1);
-		$response = Economic::getInstance()->getInvoices()->createFromOrder($order);
-		$this->setProgress($queue, 0.5);
-
-		if (!$response) {
+		} catch (\Throwable $th) {
 			$this->reAddToQueue();
 			$this->setProgress($queue, 1);
-			return;
 		}
-
-		$this->setProgress($queue, 0.90);
-
-		if ($response) {
-			$invoice = $response->asObject();
-			$this->setProgress($queue, 0.91);
-			$order->draftInvoiceNumber = (int) $invoice->draftInvoiceNumber;
-			$this->setProgress($queue, 0.92);
-			$this->setProgress($queue, 0.93);
-			Craft::$app->getElements()->saveElement($order,false);
-			$order->setStatus(Economic::getInstance()->getSettings()->statusIdAfterInvoice);
-			$this->setProgress($queue, 0.94);
-		}
-
-		$this->setProgress($queue, 0.95);
-
-		if (Economic::getInstance()->getSettings()->autoBookInvoice) {
-			Craft::$app->getQueue()->delay(10)->push(new BookInvoice(
-				[
-					'orderId' => $order->id,
-				]
-			));
-		}
-
-		$this->setProgress($queue, 1);
 	}
 
 	// Protected Methods
