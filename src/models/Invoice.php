@@ -48,10 +48,13 @@ class Invoice extends Model
 		$invoice->setPaymentTerms(PaymentTerms::transformFromOrder($order));
 		$invoice->setRecipient(Recipient::transformFromOrder($order));
 		$invoice->setLines(Economic::getInstance()->getOrders()->getOrderLines($order));
-		$invoice->setCustomer(Customer::transformFromOrder($order)); //Get via API
+		$invoice->setCustomer(Customer::transformFromOrder($order));
+
 		$invoice->setReferences([
 			'other' => $order->reference
 		]);
+
+
 
 		return $invoice;
 	}

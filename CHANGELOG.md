@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.8 - 2020-10-27
+
+### Fixed
+
+* Fixed issues with customer creation
+
 ## 1.0.5 - 2020-10-27
 
 ### Fixed

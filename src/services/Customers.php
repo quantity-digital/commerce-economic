@@ -16,7 +16,6 @@ class Customers extends Component
 	public function getCustomerByVatNumber($vatNumber)
 	{
 		$response = Economic::getInstance()->getApi()->client->request->get('customers?filter=corporateIdentificationNumber$eq:' . $vatNumber);
-
 		$status = $response->httpStatus();
 
 		if ($status == 200) {
@@ -41,13 +40,21 @@ class Customers extends Component
 
 	public function createCustomerFromOrder($order)
 	{
+		$billingAddress = $order->getBillingAddress();
+
 		$customer = new Customer();
 		$customer->setCurrency(CommercePlugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso());
 		$customer->setCustomerGroup(new CustomerGroup());
-		$customer->setName(($order->getBillingAddress()->businessName) ? $order->getBillingAddress()->businessName : $order->getBillingAddress()->firstName . ' ' . $order->getBillingAddress()->lastName);
+		$customer->setName(($billingAddress->businessName) ? $billingAddress->businessName : $billingAddress->firstName . ' ' . $billingAddress->lastName);
+		$customer->setAddress($billingAddress->address1);
+		$customer->setCity($billingAddress->city);
+		$customer->setZip($billingAddress->zipCode);
+		$customer->setCountry($billingAddress->country->name);
+		$customer->setTelephoneAndFaxNumber($billingAddress->phone);
 		$customer->setPaymentTerms(PaymentTerms::transformFromOrder($order));
 		$customer->setVatZone(VatZone::transformFromOrder($order));
 		$customer->setCorporateIdentificationNumber($order->getBillingAddress()->businessTaxId);
+		$customer->setEmail($order->email);
 
 		//Removing empty custonerNumber
 		unset($customer->customerNumber);

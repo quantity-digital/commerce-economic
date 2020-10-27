@@ -25,9 +25,8 @@ class Recipient extends Model
 
 	public static function transformFromOrder(Order $order){
 		$address = $order->getShippingAddress();
-
 		$recipent = new self();
-		$recipent->setName(($address->businessName ? $address->businessName : $address->firstName . ' ' . $address->lastName));
+		$recipent->setName(($address->businessName) ? $address->businessName : $address->firstName . ' ' . $address->lastName);
 		$recipent->setAddress($address->address1 . ' ' . $address->address2 . ' ' . $address->address3);
 		$recipent->setZip($address->zipCode);
 		$recipent->setCity($address->city);

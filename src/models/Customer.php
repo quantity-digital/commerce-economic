@@ -14,26 +14,35 @@ class Customer extends Model
 	public $paymentTerms;
 	public $name;
 	public $corporateIdentificationNumber;
+	public $email;
+	public $address;
+	public $city;
+	public $zip;
+	public $telephoneAndFaxNumber;
+	public $country;
 
 	public static function transformFromOrder($order)
 	{
 		$billingAddress = $order->getBillingAddress();
+		$customerData = null;
 
 		//Check for business customer
-		$customerData = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($billingAddress->businessTaxId);
+		$response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($billingAddress->businessTaxId);
 
-		//TODO add default customer option check
-		//Check for private customer if no business
-		if (!$customerData) {
-			$customerData = Economic::getInstance()->getCustomers()->getCustomerByEmail($order->email);
+		if($response && isset($response->asObject()->collection[0])){
+			Economic::log(\var_dump($response));
+			$customerData = $response->asObject()->collection[0];
 		}
+
+		//TODO add default customer for private customers etc.
 
 		//Customer not created, do it now
 		if (!$customerData) {
-			$customerData = Economic::getInstance()->getCustomers()->createCustomerFromOrder($order);
+			$response = Economic::getInstance()->getCustomers()->createCustomerFromOrder($order);
+			$customerData = $response->asObject();
 		}
 
-		$customer = self::transform($customerData->asObject()->collection[0]);
+		$customer = self::transform($customerData);
 
 		return $customer;
 	}
@@ -47,8 +56,58 @@ class Customer extends Model
 		$customer->setName($object->name);
 		$customer->setCustomerGroup(CustomerGroup::transform($object->customerGroup));
 		$customer->setPaymentTerms(PaymentTerms::transform($object->paymentTerms));
-		$customer->setCorporateIdentificationNumber($object->setCorporateIdentificationNumber);
+		$customer->setCorporateIdentificationNumber($object->corporateIdentificationNumber);
+		$customer->setAddress($object->address);
+		$customer->setCountry($object->country);
+		$customer->setCity($object->city);
+		$customer->setZip($object->zip);
+		$customer->setTelephoneAndFaxNumber($object->telephoneAndFaxNumber);
+
+		if(isset($object->email)){
+			$customer->setEmail($object->email);
+		}
+
 		return $customer;
+	}
+
+	public function setCountry($value){
+		$this->country = $value;
+		return $this;
+	}
+	public function getCountry(){
+		return $this->country;
+	}
+
+	public function setAddress($value){
+		$this->address = $value;
+		return $this;
+	}
+	public function getAddress(){
+		return $this->address;
+	}
+
+	public function setCity($value){
+		$this->city = $value;
+		return $this;
+	}
+	public function getCity(){
+		return $this->city;
+	}
+
+	public function setZip($value){
+		$this->zip = $value;
+		return $this;
+	}
+	public function getZip(){
+		return $this->zip;
+	}
+
+	public function setTelephoneAndFaxNumber($value){
+		$this->telephoneAndFaxNumber = $value;
+		return $this;
+	}
+	public function getTelephoneAndFaxNumber(){
+		return $this->telephoneAndFaxNumber;
 	}
 
 	public function setCorporateIdentificationNumber($value){
@@ -68,6 +127,17 @@ class Customer extends Model
 	public function getCustomerNumber()
 	{
 		return $this->customerNumber;
+	}
+
+	public function setEmail($value)
+	{
+		$this->email = $value;
+		return $this;
+	}
+
+	public function getEmail()
+	{
+		return $this->email;
 	}
 
 	public function setCustomerGroup(CustomerGroup $value)

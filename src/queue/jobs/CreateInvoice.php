@@ -32,17 +32,20 @@ class CreateInvoice extends BaseJob
 			$order = Order::find()->id($this->orderId)->one();
 			$this->setProgress($queue, 0.05);
 
+
 			if (!$order) {
 				Craft::error('Unable to fetch order with id' . $this->orderId, __METHOD__);
 				$this->setProgress($queue, 1);
 				return;
 			}
 
+
 			if ($order->invoiceNumber) {
 				Craft::error('Order has alreade an invoice number, on order with id ' . $this->orderId, __METHOD__);
 				$this->setProgress($queue, 1);
 				return;
 			}
+
 
 			$this->setProgress($queue, 0.1);
 			$response = Economic::getInstance()->getInvoices()->createFromOrder($order);
@@ -94,7 +97,7 @@ class CreateInvoice extends BaseJob
 
 	protected function reAddToQueue()
 	{
-		Craft::$app->getQueue()->delay(300)->push(new CreateInvoice(
+		Craft::$app->getQueue()->delay(5)->push(new CreateInvoice(
 			[
 				'orderId' => $this->orderId,
 			]
