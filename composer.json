@@ -2,7 +2,7 @@
   "name": "quantity-digital/commerce-economic",
   "description": "Visma E-conomic integration for Craft Commerce 3",
   "type": "craft-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "keywords": [
 	"craft",
 	"cms",

@@ -2,6 +2,7 @@
 
 namespace QD\commerce\economic\services;
 
+use Craft;
 use craft\base\Component;
 use Lenius\Economic\RestClient;
 use QD\commerce\economic\Economic;
@@ -18,8 +19,8 @@ class Api extends Component
 	public function __construct()
 	{
 		$settings = Economic::getInstance()->getSettings();
-		$grantToken = $settings->grantToken;
-		$secretToken = $settings->secretToken;
+		$grantToken = Craft::parseEnv($settings->grantToken);
+		$secretToken = Craft::parseEnv($settings->secretToken);
 		$this->client = new RestClient($secretToken, $grantToken);
 	}
 
