@@ -51,7 +51,7 @@ class Customers extends Component
 		//Removing empty custonerNumber
 		unset($customer->customerNumber);
 
-		$response = Economic::getInstance()->getApi()->client->request->post('customers',$customer->asArra());
+		$response = Economic::getInstance()->getApi()->client->request->post('customers',$customer->asArray());
 
 		$status = $response->httpStatus();
 
