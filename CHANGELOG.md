@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.10 - 2021-03-11
+
+### Fixed
+
+* Fixed error in OrderBehaviour that prevent queue jobs executed by console to run
+
 ## 1.0.9 - 2020-10-28
 
 ### Changed
@@ -63,5 +69,3 @@ All notable changes to this project will be documented in this file.
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
-
-

@@ -32,17 +32,18 @@ class OrderBehavior extends Behavior
 
 	public function setOrderInfo()
 	{
-		// If droppointId is set, store it on the order
 		$request = Craft::$app->getRequest();
-		$invoiceNumber = $request->getParam('invoiceNumber');
-		$draftInvoiceNumber = $request->getParam('draftInvoiceNumber');
+		if (!$request->getIsConsoleRequest() && \method_exists($request, 'getParam')) {
+			$invoiceNumber = $request->getParam('invoiceNumber');
+			$draftInvoiceNumber = $request->getParam('draftInvoiceNumber');
 
-		if ($invoiceNumber !== NULL) {
-			$this->invoiceNumber = $invoiceNumber;
-		}
+			if ($invoiceNumber !== NULL) {
+				$this->invoiceNumber = $invoiceNumber;
+			}
 
-		if($draftInvoiceNumber){
-			$this->draftInvoiceNumber = $draftInvoiceNumber;
+			if ($draftInvoiceNumber) {
+				$this->draftInvoiceNumber = $draftInvoiceNumber;
+			}
 		}
 	}
 
