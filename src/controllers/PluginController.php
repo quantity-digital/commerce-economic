@@ -12,234 +12,251 @@ use QD\commerce\economic\elements\Setting;
 
 class PluginController extends Controller
 {
-    // Public Methods
-    // =========================================================================
-    public $settings;
+	// Public Methods
+	// =========================================================================
+	public $settings;
 
-    public function actionSettings()
-    {
-        //Get from db model instead of project config
-        $this->settings = Economic::getInstance()->getSettings();
+	public function actionSettings()
+	{
+		//Get from db model instead of project config
+		$this->settings = Economic::getInstance()->getSettings();
 
-        //Get commerce order statuses
-        $statuses = [
-            '' => '---'
-        ];
-        foreach (CommercePlugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $status) {
-            $statuses[$status->id] = $status->name;
-        }
+		//Get commerce order statuses
+		$statuses = [
+			'' => '---'
+		];
+		foreach (CommercePlugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $status) {
+			$statuses[$status->id] = $status->name;
+		}
 
-        $gateways = [];
-        foreach (CommercePlugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
-            $gateways[] = [
-                'value' => $gateway->id,
-                'label' => $gateway->name
-            ];
-        }
+		$gateways = [];
+		foreach (CommercePlugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
+			$gateways[] = [
+				'value' => $gateway->id,
+				'label' => $gateway->name
+			];
+		}
 
-        $taxrates = [];
-        foreach (CommercePlugin::getInstance()->getTaxRates()->getAllTaxRates() as $taxrate) {
-            $taxrates[] = [
-                'value' => $taxrate->id,
-                'label' => $taxrate->name
-            ];
-        }
+		$taxrates = [];
+		foreach (CommercePlugin::getInstance()->getTaxRates()->getAllTaxRates() as $taxrate) {
+			$taxrates[] = [
+				'value' => $taxrate->id,
+				'label' => $taxrate->name
+			];
+		}
 
-        $shippingMethods = [];
-        foreach (CommercePlugin::getInstance()->getShippingMethods()->getAllShippingMethods() as $shippingMethod) {
-            $shippingMethods[] = [
-                'value' => $shippingMethod->id,
-                'label' => $shippingMethod->name
-            ];
-        }
+		$shippingMethods = [];
+		foreach (CommercePlugin::getInstance()->getShippingMethods()->getAllShippingMethods() as $shippingMethod) {
+			$shippingMethods[] = [
+				'value' => $shippingMethod->id,
+				'label' => $shippingMethod->name
+			];
+		}
 
-        $paymentTerms = $this->getPaymentTerms();
-        $layouts = $this->getLayouts();
-        $vatZones = $this->getVatZones();
-        $customerGroups = $this->getCustomerGroups();
-        $productGroups = $this->getProductGroups();
-        $overrides = Craft::$app->getConfig()->getConfigFromFile('commerce-economic');
+		$paymentTerms = $this->getPaymentTerms();
+		$layouts = $this->getLayouts();
+		$vatZones = $this->getVatZones();
+		$customerGroups = $this->getCustomerGroups();
+		$productGroups = $this->getProductGroups();
+		$overrides = Craft::$app->getConfig()->getConfigFromFile('commerce-economic');
 
-        return $this->renderTemplate('commerce-economic/settings', [
-            'settings' => $this->settings,
-            'overrides' => $overrides,
-            'statusOptions' => $statuses,
-            'paymentTerms' => $paymentTerms,
-            'layouts' => $layouts,
-            'vatZones' => $vatZones,
-            'customerGroups' => $customerGroups,
-            'gateways' => $gateways,
-            'taxrastes' => $taxrates,
-            'productGroups' => $productGroups,
-            'shippingmethods' => $shippingMethods
-        ]);
-    }
+		return $this->renderTemplate('commerce-economic/settings', [
+			'settings' => $this->settings,
+			'overrides' => $overrides,
+			'statusOptions' => $statuses,
+			'paymentTerms' => $paymentTerms,
+			'layouts' => $layouts,
+			'vatZones' => $vatZones,
+			'customerGroups' => $customerGroups,
+			'gateways' => $gateways,
+			'taxrastes' => $taxrates,
+			'productGroups' => $productGroups,
+			'shippingmethods' => $shippingMethods
+		]);
+	}
 
-    public function actionSave()
-    {
-        $this->requirePostRequest();
+	public function actionSave()
+	{
+		$this->requirePostRequest();
 
-        $setting = Setting::find()->one();
+		$setting = Setting::find()->one();
 
-        if ($setting === null) {
-            $setting = new Setting();
-        }
+		if ($setting === null) {
+			$setting = new Setting();
+		}
 
-        $settings = Craft::$app->getRequest()->getBodyParam('settings');
+		$settings = Craft::$app->getRequest()->getBodyParam('settings');
 
-        $setting->secretToken = isset($settings['secretToken']) ? $settings['secretToken'] : null;
-        $setting->grantToken = isset($settings['grantToken']) ? $settings['grantToken'] : null;
-        $setting->defaultpaymentTermsNumber = isset($settings['defaultpaymentTermsNumber']) ? $settings['defaultpaymentTermsNumber'] : null;
-        $setting->defaultLayoutNumber = isset($settings['defaultLayoutNumber']) ? $settings['defaultLayoutNumber'] : null;
-        $setting->defaultCustomerGroup = isset($settings['defaultCustomerGroup']) ? $settings['defaultCustomerGroup'] : null;
-        $setting->defaultVatZoneNumber = isset($settings['defaultVatZoneNumber']) ? $settings['defaultVatZoneNumber'] : null;
-        $setting->defaultProductgroup = isset($settings['defaultProductgroup']) ? $settings['defaultProductgroup'] : null;
-        $setting->invoiceEnabled = isset($settings['invoiceEnabled']) ? $settings['invoiceEnabled'] : false;
-        $setting->statusIdAfterInvoice = isset($settings['statusIdAfterInvoice']) ? $settings['statusIdAfterInvoice'] : null;
-        $setting->invoiceOnStatusId = isset($settings['invoiceOnStatusId']) ? $settings['invoiceOnStatusId'] : null;
-        $setting->autoBookInvoice = isset($settings['autoBookInvoice']) ? $settings['autoBookInvoice'] : false;
-        $setting->invoiceLayoutNumber = isset($settings['invoiceLayoutNumber']) ? $settings['invoiceLayoutNumber'] : null;
-        $setting->gatewayPaymentTerms = $settings['gatewayPaymentTerms'] ? Json::encode($settings['gatewayPaymentTerms']) : '{}';
-        $setting->shippingProductnumbers = $settings['shippingProductnumbers'] ? Json::encode($settings['shippingProductnumbers']) : '{}';
-        $setting->vatZones = $settings['vatZones'] ? Json::encode($settings['vatZones']) : '{}';
-        $setting->syncVariants = isset($settings['syncVariants']) ? $settings['syncVariants'] : false;
-        $setting->onlyB2b = isset($settings['onlyB2b']) ? $settings['onlyB2b'] : false;
+		$setting->secretToken = isset($settings['secretToken']) ? $settings['secretToken'] : null;
+		$setting->grantToken = isset($settings['grantToken']) ? $settings['grantToken'] : null;
+		$setting->defaultpaymentTermsNumber = isset($settings['defaultpaymentTermsNumber']) ? $settings['defaultpaymentTermsNumber'] : null;
+		$setting->defaultLayoutNumber = isset($settings['defaultLayoutNumber']) ? $settings['defaultLayoutNumber'] : null;
+		$setting->defaultCustomerGroup = isset($settings['defaultCustomerGroup']) ? $settings['defaultCustomerGroup'] : null;
+		$setting->defaultVatZoneNumber = isset($settings['defaultVatZoneNumber']) ? $settings['defaultVatZoneNumber'] : null;
+		$setting->defaultProductgroup = isset($settings['defaultProductgroup']) ? $settings['defaultProductgroup'] : null;
+		$setting->invoiceEnabled = isset($settings['invoiceEnabled']) ? $settings['invoiceEnabled'] : false;
+		$setting->statusIdAfterInvoice = isset($settings['statusIdAfterInvoice']) ? $settings['statusIdAfterInvoice'] : null;
+		$setting->invoiceOnStatusId = isset($settings['invoiceOnStatusId']) ? $settings['invoiceOnStatusId'] : null;
+		$setting->autoBookInvoice = isset($settings['autoBookInvoice']) ? $settings['autoBookInvoice'] : false;
+		$setting->invoiceLayoutNumber = isset($settings['invoiceLayoutNumber']) ? $settings['invoiceLayoutNumber'] : null;
+		$setting->gatewayPaymentTerms = $settings['gatewayPaymentTerms'] ? Json::encode($settings['gatewayPaymentTerms']) : '{}';
+		$setting->shippingProductnumbers = $settings['shippingProductnumbers'] ? Json::encode($settings['shippingProductnumbers']) : '{}';
+		$setting->vatZones = $settings['vatZones'] ? Json::encode($settings['vatZones']) : '{}';
+		$setting->syncVariants = isset($settings['syncVariants']) ? $settings['syncVariants'] : false;
+		$setting->onlyB2b = isset($settings['onlyB2b']) ? $settings['onlyB2b'] : false;
 
-        if (!Craft::$app->getElements()->saveElement($setting)) {
-            exit('Failed to save');
-            // return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
-        }
+		if (!Craft::$app->getElements()->saveElement($setting)) {
+			exit('Failed to save');
+			// return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+		}
 
-        $this->setSuccessFlash(Craft::t('commerce-economic', 'Settings saved.'));
-        return $this->redirectToPostedUrl();
-    }
+		$this->setSuccessFlash(Craft::t('commerce-economic', 'Settings saved.'));
+		return $this->redirectToPostedUrl();
+	}
 
 
-    // Protected Methods
-    // =========================================================================
+	// Protected Methods
+	// =========================================================================
 
-    protected function getProductGroups()
-    {
-        $productGroups = [];
+	protected function getProductGroups()
+	{
+		$productGroups = [];
 
-        //Check that both tokens have been saved
-        if (!$this->settings->grantToken || !$this->settings->secretToken) {
-            return $productGroups;
-        }
+		if (!$this->settings) {
+			return $productGroups;
+		}
 
-        $response = Economic::getInstance()->getApi()->getAllProductGroups();
+		//Check that both tokens have been saved
+		if (!$this->settings->grantToken || !$this->settings->secretToken) {
+			return $productGroups;
+		}
 
-        if (!$response) {
-            return $productGroups;
-        }
+		$response = Economic::getInstance()->getApi()->getAllProductGroups();
 
-        foreach ($response->asObject()->collection as $term) {
-            $productGroups[] = [
-                'value' => $term->productGroupNumber,
-                'label' => $term->name
-            ];
-        }
+		if (!$response) {
+			return $productGroups;
+		}
 
-        return $productGroups;
-    }
+		foreach ($response->asObject()->collection as $term) {
+			$productGroups[] = [
+				'value' => $term->productGroupNumber,
+				'label' => $term->name
+			];
+		}
 
-    protected function getPaymentTerms()
-    {
-        $paymentTerms = [];
+		return $productGroups;
+	}
 
-        //Check that both tokens have been saved
-        if (!$this->settings->grantToken || !$this->settings->secretToken) {
-            return $paymentTerms;
-        }
+	protected function getPaymentTerms()
+	{
+		$paymentTerms = [];
 
-        $terms = Economic::getInstance()->getApi()->getAllPaymentTerms();
+		if (!$this->settings) {
+			return $paymentTerms;
+		}
 
-        if (!$terms) {
-            return $paymentTerms;
-        }
+		//Check that both tokens have been saved
+		if (!$this->settings->grantToken || !$this->settings->secretToken) {
+			return $paymentTerms;
+		}
 
-        foreach ($terms->asObject()->collection as $term) {
-            $paymentTerms[] = [
-                'value' => $term->paymentTermsNumber,
-                'label' => $term->name
-            ];
-        }
+		$terms = Economic::getInstance()->getApi()->getAllPaymentTerms();
 
-        return $paymentTerms;
-    }
+		if (!$terms) {
+			return $paymentTerms;
+		}
 
-    protected function getLayouts()
-    {
-        $data = [];
+		foreach ($terms->asObject()->collection as $term) {
+			$paymentTerms[] = [
+				'value' => $term->paymentTermsNumber,
+				'label' => $term->name
+			];
+		}
 
-        //Check that both tokens have been saved
-        if (!$this->settings->grantToken || !$this->settings->secretToken) {
-            return $data;
-        }
+		return $paymentTerms;
+	}
 
-        $layouts = Economic::getInstance()->getApi()->getAllLayouts();
+	protected function getLayouts()
+	{
+		$data = [];
+		if (!$this->settings) {
+			return $data;
+		}
 
-        if (!$layouts) {
-            return $data;
-        }
+		//Check that both tokens have been saved
+		if (!$this->settings->grantToken || !$this->settings->secretToken) {
+			return $data;
+		}
 
-        foreach ($layouts->asObject()->collection as $layout) {
-            $data[] = [
-                'value' => $layout->layoutNumber,
-                'label' => $layout->name
-            ];
-        }
+		$layouts = Economic::getInstance()->getApi()->getAllLayouts();
 
-        return $data;
-    }
+		if (!$layouts) {
+			return $data;
+		}
 
-    protected function getVatZones()
-    {
-        $data = [];
+		foreach ($layouts->asObject()->collection as $layout) {
+			$data[] = [
+				'value' => $layout->layoutNumber,
+				'label' => $layout->name
+			];
+		}
 
-        //Check that both tokens have been saved
-        if (!$this->settings->grantToken || !$this->settings->secretToken) {
-            return $data;
-        }
+		return $data;
+	}
 
-        $layouts = Economic::getInstance()->getApi()->getAllVatZones();
+	protected function getVatZones()
+	{
+		$data = [];
+		if (!$this->settings) {
+			return $data;
+		}
 
-        if (!$layouts) {
-            return $data;
-        }
+		//Check that both tokens have been saved
+		if (!$this->settings->grantToken || !$this->settings->secretToken) {
+			return $data;
+		}
 
-        foreach ($layouts->asObject()->collection as $layout) {
-            $data[] = [
-                'value' => $layout->vatZoneNumber,
-                'label' => $layout->name
-            ];
-        }
+		$layouts = Economic::getInstance()->getApi()->getAllVatZones();
 
-        return $data;
-    }
+		if (!$layouts) {
+			return $data;
+		}
 
-    protected function getCustomerGroups()
-    {
-        $data = [];
+		foreach ($layouts->asObject()->collection as $layout) {
+			$data[] = [
+				'value' => $layout->vatZoneNumber,
+				'label' => $layout->name
+			];
+		}
 
-        //Check that both tokens have been saved
-        if (!$this->settings->grantToken || !$this->settings->secretToken) {
-            return $data;
-        }
+		return $data;
+	}
 
-        $groups = Economic::getInstance()->getCustomers()->getAllCustomerGroups();
+	protected function getCustomerGroups()
+	{
+		$data = [];
+		if (!$this->settings) {
+			return $data;
+		}
 
-        if (!$groups) {
-            return $data;
-        }
+		//Check that both tokens have been saved
+		if (!$this->settings->grantToken || !$this->settings->secretToken) {
+			return $data;
+		}
 
-        foreach ($groups->asObject()->collection as $group) {
-            $data[] = [
-                'value' => $group->customerGroupNumber,
-                'label' => $group->name
-            ];
-        }
+		$groups = Economic::getInstance()->getCustomers()->getAllCustomerGroups();
 
-        return $data;
-    }
+		if (!$groups) {
+			return $data;
+		}
+
+		foreach ($groups->asObject()->collection as $group) {
+			$data[] = [
+				'value' => $group->customerGroupNumber,
+				'label' => $group->name
+			];
+		}
+
+		return $data;
+	}
 }

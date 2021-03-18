@@ -87,7 +87,12 @@ class Economic extends \craft\base\Plugin
 
 	public function getSettings()
 	{
-		return Setting::find()->one();
+		$setting = Setting::find()->one();
+		if (!$setting) {
+			$setting = new Setting();
+		}
+
+		return $setting;
 	}
 
 	// public function getSettingsResponse()
@@ -160,7 +165,7 @@ class Economic extends \craft\base\Plugin
 		);
 
 		//Invoicing
-		if ($this->getSettings()->invoiceEnabled) {
+		if ($this->getSettings() && $this->getSettings()->invoiceEnabled) {
 			Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, [$this->getInvoices(), 'addCreateInvoiceJob']);
 		}
 
@@ -179,7 +184,7 @@ class Economic extends \craft\base\Plugin
 			]);
 		});
 
-		if ($this->getSettings()->syncVariants) {
+		if ($this->getSettings() && $this->getSettings()->syncVariants) {
 			// Ads job to queue when variant is save for product syncing
 			// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
 			Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
