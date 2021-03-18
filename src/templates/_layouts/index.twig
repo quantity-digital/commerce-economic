@@ -1,0 +1,11 @@
+{% extends parentLayout ?? '_layouts/cp' %}
+
+{% if title is not defined %}
+	{% set title = craft.economic.getPluginName() | t('commerce-economic') %}
+{% endif %}
+
+{% set content %}
+
+{% block blockContent %}{% endblock %}
+
+{% endset %}

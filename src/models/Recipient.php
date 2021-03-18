@@ -5,78 +5,45 @@ namespace QD\commerce\economic\models;
 use craft\base\Model;
 use craft\commerce\elements\Order;
 use QD\commerce\economic\Economic;
+use QD\commerce\economic\helpers\Log;
 
 class Recipient extends Model
 {
-	/** @var string $name */
+    /** @var string $name */
     public $name;
 
-	/** @var string $address */
+    /** @var string $address */
     public $address;
 
-	/** @var string $zip */
+    /** @var string $zip */
     public $zip;
 
-	/** @var string $city */
+    /** @var string $city */
     public $city;
 
     /** @var VatZone $vatZone */
     public $vatZone;
 
-	public static function transformFromOrder(Order $order){
-		$address = $order->getShippingAddress();
-		$recipent = new self();
-		$recipent->setName(($address->businessName) ? $address->businessName : $address->firstName . ' ' . $address->lastName);
-		$recipent->setAddress($address->address1 . ' ' . $address->address2 . ' ' . $address->address3);
-		$recipent->setZip($address->zipCode);
-		$recipent->setCity($address->city);
-		$recipent->setVatZone(VatZone::transformFromOrder($order));
+    public $ean;
 
-		return $recipent;
-	}
+    public $nemHandelType = 'ean';
 
-	public function setName($value){
-		$this->name = $value;
-		return $this;
-	}
+    public static function transformFromOrder(Order $order)
+    {
+        $address = $order->getShippingAddress();
+        $recipent = new self();
+        $recipent->name = ($address->businessName) ? $address->businessName : $address->firstName . ' ' . $address->lastName;
+        $recipent->address = $address->address1 . ' ' . $address->address2 . ' ' . $address->address3;
+        $recipent->zip = $address->zipCode;
+        $recipent->city = $address->city;
+        $recipent->vatZone = VatZone::transformFromOrder($order);
 
-	public function getName(){
-		return $this->name;
-	}
+        if ($order->eanNumber && $order->eanNumber !== 'null') {
+            $recipent->ean = $order->eanNumber;
+        } else {
+            unset($recipent->ean);
+        }
 
-	public function setAddress($value){
-		$this->address = $value;
-		return $this;
-	}
-
-	public function getAddress(){
-		return $this->address;
-	}
-
-	public function setZip($value){
-		$this->zip = $value;
-		return $this;
-	}
-
-	public function getZip($value){
-		return $this->zip;
-	}
-
-	public function setCity($value){
-		$this->city = $value;
-		return $this;
-	}
-
-	public function getCity($value){
-		return $this->city;
-	}
-
-	public function setVatZone(VatZone $value){
-		$this->vatZone = $value;
-		return $this;
-	}
-
-	public function getVatZone(){
-		return $this->vatZone;
-	}
+        return $recipent;
+    }
 }

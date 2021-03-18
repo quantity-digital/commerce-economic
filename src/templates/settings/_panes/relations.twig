@@ -22,7 +22,7 @@
 						options: paymentTerms
 					},
 				],
-				rows: settings.gatewayPaymentTerms
+				rows: settings.gatewayPaymentTerms|json_decode
 			}) }}
 		</div>
 	</div>
@@ -46,7 +46,30 @@
 						options: vatZones
 					},
 				],
-				rows: settings.vatZones
+				rows: settings.vatZones|json_decode
+			}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.editableTableField({
+				label: 'Shipping methods setup',
+				instructions: "Connect comerce shipping methods to productnumbers in E-conomic",
+				id: 'shippingProductnumbers',
+				name: 'shippingProductnumbers',
+				cols: [
+					{
+						heading : 'Shippingmethod',
+						type: 'select',
+						options: shippingmethods
+					},
+					{
+						heading : 'Product number',
+						type: 'text',
+					},
+				],
+				rows: settings.shippingProductnumbers|json_decode
 			}) }}
 		</div>
 	</div>

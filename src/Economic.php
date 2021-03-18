@@ -5,18 +5,28 @@ namespace QD\commerce\economic;
 use Craft;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
-use craft\commerce\events\OrderStatusEvent;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin as CommercePlugin;
+use craft\commerce\services\Gateways;
 use craft\commerce\services\OrderHistories;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\PluginEvent;
+use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
+use craft\services\Elements;
+use craft\services\Fields;
 use craft\services\Plugins;
+use craft\web\twig\variables\CraftVariable;
+use craft\web\UrlManager;
 use QD\commerce\economic\behaviors\OrderBehavior;
 use QD\commerce\economic\behaviors\OrderQueryBehavior;
+use QD\commerce\economic\elements\Setting;
+use QD\commerce\economic\gateways\Ean;
 use QD\commerce\economic\models\Settings;
 use QD\commerce\economic\plugin\Services;
-use QD\commerce\economic\queue\jobs\CreateInvoice;
+use QD\commerce\economic\variables\Economic as VariablesEconomic;
+use QD\commerce\economic\fields\ProductGroup;
 use yii\base\Event;
 
 class Economic extends \craft\base\Plugin
@@ -33,9 +43,9 @@ class Economic extends \craft\base\Plugin
 	/**
 	 * @inheritDoc
 	 */
-	public $schemaVersion = '1.0.0';
+	public $schemaVersion = '1.0.2';
 	public $hasCpSettings = true;
-	public $hasCpSection = false;
+	public $hasCpSection = true;
 
 	// Public Methods
 	// =========================================================================
@@ -49,27 +59,46 @@ class Economic extends \craft\base\Plugin
 	{
 		parent::init();
 		self::$plugin = $this;
+
 		self::$commerceInstalled = class_exists(CommercePlugin::class);
 
-		$fileTarget = new \craft\log\FileTarget([
-			'logFile' => __DIR__ . '/economic.log', // <--- path of the log file
-			'categories' => ['commerce-economic'] // <--- categories in the file
-		]);
-		// include the new target file target to the dispatcher
-		Craft::getLogger()->dispatcher->targets[] = $fileTarget;
-
 		$this->initComponents();
+		$this->registerVariables();
 		$this->registerBehaviors();
 		$this->registerEventListeners();
+		$this->registerFieldTypes();
+		$this->registerElementTypes();
 
 		Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function (PluginEvent $event) {
 			if ($event->plugin === $this) {
 				if (Craft::$app->getRequest()->isCpRequest) {
 					Craft::$app->getResponse()->redirect(
-						UrlHelper::cpUrl('settings/plugins/commerce-economic')
+						UrlHelper::cpUrl('economic/settings#tab-authorization')
 					)->send();
 				}
 			}
+		});
+	}
+
+	public function getPluginName()
+	{
+		return 'E-conomic';
+	}
+
+	public function getSettings()
+	{
+		return Setting::find()->one();
+	}
+
+	// public function getSettingsResponse()
+	// {
+	//     Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('economic/settings'));
+	// }
+
+	private function registerVariables()
+	{
+		Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function (Event $event) {
+			$event->sender->set('economic', VariablesEconomic::class);
 		});
 	}
 
@@ -121,10 +150,21 @@ class Economic extends \craft\base\Plugin
 
 	protected function registerGlobalEventListeners()
 	{
+		// EAN payment gateway
+		Event::on(
+			Gateways::class,
+			Gateways::EVENT_REGISTER_GATEWAY_TYPES,
+			function (RegisterComponentTypesEvent $event) {
+				$event->types[] = Ean::class;
+			}
+		);
+
 		//Invoicing
 		if ($this->getSettings()->invoiceEnabled) {
 			Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, [$this->getInvoices(), 'addCreateInvoiceJob']);
 		}
+
+		Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, [$this->getOrders(), 'addAutoCaptureJob']);
 	}
 
 	protected function registerSiteEventListeners()
@@ -133,170 +173,34 @@ class Economic extends \craft\base\Plugin
 
 	protected function registerCpEventListeners()
 	{
+		Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function (RegisterUrlRulesEvent $event) {
+			$event->rules = array_merge($event->rules, [
+				'economic/settings' => 'commerce-economic/plugin/settings',
+			]);
+		});
+
+		if ($this->getSettings()->syncVariants) {
+			// Ads job to queue when variant is save for product syncing
+			// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
+			Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
+		}
 	}
 
-	/**
-	 * Settings
-	 */
-
-	protected function createSettingsModel()
+	protected function registerFieldTypes()
 	{
-		return new Settings();
-	}
-
-	protected function settingsHtml()
-	{
-		$statusOptions = [];
-		foreach (CommercePlugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $status) {
-			$statusOptions[] = [
-				'value' => $status->id,
-				'label' => $status->displayName
-			];
-		}
-		$gateways = [];
-		foreach (CommercePlugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
-			$gateways[] = [
-				'value' => $gateway->id,
-				'label' => $gateway->name
-			];
-		}
-
-		$taxrates = [];
-		foreach (CommercePlugin::getInstance()->getTaxRates()->getAllTaxRates() as $taxrate) {
-			$taxrates[] = [
-				'value' => $taxrate->id,
-				'label' => $taxrate->name
-			];
-		}
-
-		$paymentTerms = $this->getPaymentTerms();
-		$layouts = $this->getLayouts();
-		$vatZones = $this->getVatZones();
-		$customerGroups = $this->getCustomerGroups();
-
-
-
-		return \Craft::$app->getView()->renderTemplate(
-			'commerce-economic/settings',
-			[
-				'settings' => $this->getSettings(),
-				'statusOptions' => $statusOptions,
-				'paymentTerms' => $paymentTerms,
-				'layouts' => $layouts,
-				'vatZones' => $vatZones,
-				'customerGroups' => $customerGroups,
-				'gateways' => $gateways,
-				'taxrastes' => $taxrates
-			]
+		Event::on(
+			Fields::class,
+			Fields::EVENT_REGISTER_FIELD_TYPES,
+			function (RegisterComponentTypesEvent $event) {
+				$event->types[] = ProductGroup::class;
+			}
 		);
 	}
 
-	protected function getPaymentTerms()
+	protected function registerElementTypes()
 	{
-		$paymentTerms = [];
-
-		//Check that both tokens have been saved
-		if (!$this->getSettings()->grantToken || !$this->getSettings()->secretToken) {
-			return $paymentTerms;
-		}
-
-		$terms = $this->getApi()->getAllPaymentTerms();
-
-		if (!$terms) {
-			return $paymentTerms;
-		}
-
-		foreach ($terms->asObject()->collection as $term) {
-			$paymentTerms[] = [
-				'value' => $term->paymentTermsNumber,
-				'label' => $term->name
-			];
-		}
-
-		return $paymentTerms;
-	}
-
-	protected function getLayouts()
-	{
-		$data = [];
-
-		//Check that both tokens have been saved
-		if (!$this->getSettings()->grantToken || !$this->getSettings()->secretToken) {
-			return $data;
-		}
-
-		$layouts = $this->getApi()->getAllLayouts();
-
-		if (!$layouts) {
-			return $data;
-		}
-
-		foreach ($layouts->asObject()->collection as $layout) {
-			$data[] = [
-				'value' => $layout->layoutNumber,
-				'label' => $layout->name
-			];
-		}
-
-		return $data;
-	}
-
-	protected function getVatZones()
-	{
-		$data = [];
-
-		//Check that both tokens have been saved
-		if (!$this->getSettings()->grantToken || !$this->getSettings()->secretToken) {
-			return $data;
-		}
-
-		$layouts = $this->getApi()->getAllVatZones();
-
-		if (!$layouts) {
-			return $data;
-		}
-
-		foreach ($layouts->asObject()->collection as $layout) {
-			$data[] = [
-				'value' => $layout->vatZoneNumber,
-				'label' => $layout->name
-			];
-		}
-
-		return $data;
-	}
-
-	protected function getCustomerGroups()
-	{
-		$data = [];
-
-		//Check that both tokens have been saved
-		if (!$this->getSettings()->grantToken || !$this->getSettings()->secretToken) {
-			return $data;
-		}
-
-		$groups = $this->getCustomers()->getAllCustomerGroups();
-
-		if (!$groups) {
-			return $data;
-		}
-
-		foreach ($groups->asObject()->collection as $group) {
-			$data[] = [
-				'value' => $group->customerGroupNumber,
-				'label' => $group->name
-			];
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Logging function
-	 */
-
-	public static function log($message)
-	{
-		Craft::getLogger()->log($message, \yii\log\Logger::LEVEL_INFO, 'commerce-economic');
+		Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function (RegisterComponentTypesEvent $e) {
+			$e->types[] = Setting::class;
+		});
 	}
 }

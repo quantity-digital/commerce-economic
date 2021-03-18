@@ -12,93 +12,128 @@ use yii\base\Behavior;
 
 class OrderBehavior extends Behavior
 {
-	public $invoiceNumber;
-	public $draftInvoiceNumber;
+    public $invoiceNumber;
+    public $draftInvoiceNumber;
+    public $eanNumber;
+    public $eanReference;
+    public $eanContact;
 
 
-	// Public Methods
-	// =========================================================================
+    // Public Methods
+    // =========================================================================
 
-	/**
-	 * @inheritdoc
-	 */
-	public function events()
-	{
-		return [
-			Order::EVENT_BEFORE_SAVE => [$this, 'setOrderInfo'],
-			Order::EVENT_AFTER_SAVE => [$this, 'saveOrderInfo'],
-		];
-	}
+    public function getInvoiceUrl()
+    {
+        return 'tst';
+    }
 
-	public function setOrderInfo()
-	{
-		$request = Craft::$app->getRequest();
-		if (!$request->getIsConsoleRequest() && \method_exists($request, 'getParam')) {
-			$invoiceNumber = $request->getParam('invoiceNumber');
-			$draftInvoiceNumber = $request->getParam('draftInvoiceNumber');
+    /**
+     * @inheritdoc
+     */
+    public function events()
+    {
+        return [
+            Order::EVENT_BEFORE_SAVE => [$this, 'setOrderInfo'],
+            Order::EVENT_AFTER_SAVE => [$this, 'saveOrderInfo'],
+        ];
+    }
 
-			if ($invoiceNumber !== NULL) {
-				$this->invoiceNumber = $invoiceNumber;
-			}
+    public function setOrderInfo()
+    {
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest() && \method_exists($request, 'getParam')) {
+            $invoiceNumber = $request->getParam('invoiceNumber');
+            $draftInvoiceNumber = $request->getParam('draftInvoiceNumber');
+            $eanNummber = $request->getParam('eanNumber');
+            $eanContact = $request->getParam('eanContact');
+            $eanReference = $request->getParam('eanReference');
 
-			if ($draftInvoiceNumber) {
-				$this->draftInvoiceNumber = $draftInvoiceNumber;
-			}
-		}
-	}
+            if ($invoiceNumber !== NULL) {
+                $this->invoiceNumber = $invoiceNumber;
+            }
 
-	/**
-	 * Saves extra attributes that the Behavior injects.
-	 *
-	 * @return void
-	 */
-	public function saveOrderInfo()
-	{
-		$data = [];
+            if ($draftInvoiceNumber) {
+                $this->draftInvoiceNumber = $draftInvoiceNumber;
+            }
 
-		if ($this->invoiceNumber !== null) {
-			$data['invoiceNumber'] = $this->invoiceNumber;
-		}
+            if ($eanNummber) {
+                $this->eanNumber = $eanNummber;
+            }
 
-		if ($this->draftInvoiceNumber !== null) {
-			$data['draftInvoiceNumber'] = $this->draftInvoiceNumber;
-		}
+            if ($eanContact) {
+                $this->eanContact = $eanContact;
+            }
 
-		if ($data) {
-			Craft::$app->getDb()->createCommand()
-				->upsert(Table::ORDERINFO, [
-					'id' => $this->owner->id,
-				], $data, [], false)
-				->execute();
-		}
-	}
+            if ($eanReference) {
+                $this->eanReference = $eanReference;
+            }
+        }
+    }
 
-	public function setStatus(int $statusId, string $message = null)
-	{
-		$order = $this->owner;
-		$status = CommercePlugin::getInstance()->orderStatuses->getOrderStatusById($statusId);
-		$oldStatusId = $order->orderStatusId;
+    /**
+     * Saves extra attributes that the Behavior injects.
+     *
+     * @return void
+     */
+    public function saveOrderInfo()
+    {
+        $data = [];
 
-		// Validate status
-		if ($status === null) {
-			throw new OrderStatusException('Invalid order status id');
-		}
+        if ($this->invoiceNumber !== null) {
+            $data['invoiceNumber'] = $this->invoiceNumber;
+        }
 
-		// Update order status
-		Craft::$app->getDb()->createCommand()->update(
-			'{{%commerce_orders}}',
-			['orderStatusId' => $statusId],
-			['id' => $order->getId()]
-		)->execute();
+        if ($this->draftInvoiceNumber !== null) {
+            $data['draftInvoiceNumber'] = $this->draftInvoiceNumber;
+        }
 
-		// Create order history
-		$orderHistoryModel = new OrderHistory();
-		$orderHistoryModel->orderId = $order->id;
-		$orderHistoryModel->prevStatusId = $oldStatusId;
-		$orderHistoryModel->newStatusId = $statusId;
-		$orderHistoryModel->customerId = $order->customerId;
-		$orderHistoryModel->message = $message;
+        if ($this->eanNumber !== null) {
+            $data['eanNumber'] = $this->eanNumber;
+        }
 
-		CommercePlugin::getInstance()->getOrderHistories()->saveOrderHistory($orderHistoryModel);
-	}
+        if ($this->eanReference !== null) {
+            $data['eanReference'] = $this->eanReference;
+        }
+
+        if ($this->eanContact !== null) {
+            $data['eanContact'] = $this->eanContact;
+        }
+
+        if ($data) {
+            Craft::$app->getDb()->createCommand()
+                ->upsert(Table::ORDERINFO, [
+                    'id' => $this->owner->id,
+                ], $data, [], false)
+                ->execute();
+        }
+    }
+
+    public function setStatus(int $statusId, string $message = null)
+    {
+        $order = $this->owner;
+        $status = CommercePlugin::getInstance()->orderStatuses->getOrderStatusById($statusId);
+        $oldStatusId = $order->orderStatusId;
+
+        // Validate status
+        if ($status === null) {
+            throw new OrderStatusException('Invalid order status id');
+        }
+
+        // Update order status
+        Craft::$app->getDb()->createCommand()->update(
+            '{{%commerce_orders}}',
+            ['orderStatusId' => $statusId],
+            ['id' => $order->getId()]
+        )->execute();
+
+        // Create order history
+        $orderHistoryModel = new OrderHistory();
+        $orderHistoryModel->orderId = $order->id;
+        $orderHistoryModel->prevStatusId = $oldStatusId;
+        $orderHistoryModel->newStatusId = $statusId;
+        $orderHistoryModel->customerId = $order->customerId;
+        $orderHistoryModel->message = $message;
+
+        CommercePlugin::getInstance()->getOrderHistories()->saveOrderHistory($orderHistoryModel);
+    }
 }

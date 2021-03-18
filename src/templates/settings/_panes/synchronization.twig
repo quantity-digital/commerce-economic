@@ -1,0 +1,32 @@
+{% from "_includes/forms" import textField, lightswitchField, selectField, autosuggestField, multiSelectField %}
+
+<div class="flex-fields">
+	<div class="field width-50">
+		<div>
+			{{ lightswitchField({
+			label: "Sync variants to e-conomic"|t,
+			id: 'syncVariants',
+			name: 'syncVariants',
+			instructions: "If checked, variants will automaticly by synced to E-conomic. <br><b>Be aware that if the SKU of a variant changes, a new product will be created in E-conomic</b>"|t('commerce-economic'),
+			value: 1,
+			errors: settings.getErrors('syncVariants'),
+			on: (settings.syncVariants is defined) ? settings.syncVariants : 0,
+		}) }}
+		</div>
+	</div>
+	<div class="field width-50">
+		<div>
+			{{ selectField({
+				first: true,
+				label: 'Default productgroup'|t('commerce-economic'),
+				instructions: "If variant doesnt have a product group, what should be used as default"|t('commerce-economic'),
+				id: 'defaultProductgroup',
+				name: 'defaultProductgroup',
+				options : productGroups,
+				value : settings.defaultProductgroup,
+				errors: settings.getErrors('defaultProductgroup') ?? null,
+				required: true,
+			}) }}
+		</div>
+	</div>
+</div>

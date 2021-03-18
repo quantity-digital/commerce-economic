@@ -1,6 +1,5 @@
 {% import "_includes/forms" as forms %}
 
-<h2>Default settings</h2>
 <div class="flex-fields">
 	<div class="field width-50">
 		<div>
@@ -68,15 +67,17 @@
 
 	<div class="field width-50">
 		<div>
-			{{ forms.lightswitchField({
-			label: "Default electronic invoice"|t,
-			id: 'defaultEInvoiceEnabled',
-			name: 'defaultEInvoiceEnabled',
-			instructions: "If checked, new customers will be created with electronic invoicing enabled"|t('commerce-economic'),
-			value: 1,
-			errors: settings.getErrors('defaultEInvoiceEnabled'),
-			on: (settings.defaultEInvoiceEnabled is defined) ? settings.defaultEInvoiceEnabled : 0,
-		}) }}
+			{{ forms.selectField({
+				first: true,
+				label: 'Default product groups'|t('commerce-economic'),
+				instructions: "If customer doesn't exist in e-conomic, what customer group should they have as default"|t('commerce-economic'),
+				id: 'defaultProductgroup',
+				name: 'defaultProductgroup',
+				options : productGroups,
+				value : settings.defaultProductgroup,
+				errors: settings.getErrors('defaultProductgroup') ?? null,
+				required: true,
+			}) }}
 		</div>
 	</div>
 </div>

@@ -1,6 +1,5 @@
 {% import "_includes/forms" as forms %}
 
-<h2>Invoicing</h2>
 <div class="flex-fields">
 
 	<div class="field width-50">
@@ -12,7 +11,22 @@
 			instructions: "If checked, completed orders with the selected invoice status will be created in E-conomic"|t('commerce-economic'),
 			value: 1,
 			errors: settings.getErrors('invoiceEnabled'),
-			on: (settings.invoiceEnabled is defined) ? settings.invoiceEnabled : 0,
+			on: settings.invoiceEnabled,
+			disabled: 'invoiceEnabled' in overrides,
+			warning: 'invoiceEnabled' in overrides ? 'This is set in overrode'
+		}) }}
+		</div>
+	</div>
+	<div class="field width-50">
+		<div>
+			{{ forms.lightswitchField({
+			label: "Limit to B2B"|t,
+			id: 'onlyB2b',
+			name: 'onlyB2b',
+			instructions: "If checked, only orders with valid Business Tax ID will by invoiced"|t('commerce-economic'),
+			value: 1,
+			errors: settings.getErrors('onlyB2b'),
+			on: (settings.onlyB2b is defined) ? settings.onlyB2b : 0,
 		}) }}
 		</div>
 	</div>
@@ -31,6 +45,22 @@
 		</div>
 	</div>
 
+	<div class="field width-50">
+		<div>
+			{{ forms.lightswitchField({
+			label: "Convert amount"|t,
+			id: 'convertAmount',
+			name: 'convertAmount',
+			instructions: "Should the amount on lineitems etc. be converted to currency’s exchange rate?"|t('commerce-economic'),
+			value: 1,
+			errors: settings.getErrors('convertAmount'),
+			on: (settings.convertAmount is defined) ? settings.convertAmount : 0,
+		}) }}
+		</div>
+	</div>
+</div>
+<hr>
+<div class="flex-fields">
 	<div class="field width-50">
 		<div>
 			{{ forms.selectField({
@@ -78,5 +108,4 @@
 			}) }}
 		</div>
 	</div>
-</div>
-<hr>
+</div><hr>

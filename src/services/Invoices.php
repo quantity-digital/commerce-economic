@@ -8,128 +8,154 @@ use craft\commerce\elements\Order;
 use QD\commerce\economic\Economic;
 use QD\commerce\economic\events\ApiResponseEvent;
 use QD\commerce\economic\events\InvoiceEvent;
+use QD\commerce\economic\gateways\Ean;
+use QD\commerce\economic\helpers\Log;
+use QD\commerce\economic\models\Customer;
+use QD\commerce\economic\models\CustomerContact;
 use QD\commerce\economic\models\Invoice;
+use QD\commerce\economic\models\Layout;
+use QD\commerce\economic\models\PaymentTerms;
+use QD\commerce\economic\models\Recipient;
 use QD\commerce\economic\queue\jobs\CreateInvoice;
 
 class Invoices extends Component
 {
 
-	const EVENT_BEFORE_CREATE_INVOICE_DRAFT = 'beforeCrateInvoiceDraft';
-	const EVENT_AFTER_INVOICE_BOOKING = 'afterInvoiceBooking';
+    const EVENT_BEFORE_CREATE_INVOICE_DRAFT = 'beforeCrateInvoiceDraft';
+    const EVENT_AFTER_INVOICE_BOOKING = 'afterInvoiceBooking';
 
-	public function createFromOrder(Order $order)
-	{
-		$invoice = Invoice::transformFromOrder($order);
-		return $this->createInvoiceDraft($invoice);
-	}
+    public function createFromOrder(Order $order)
+    {
+        //Get base invoice model
+        $invoice = Invoice::transformFromOrder($order);
+        return $this->createInvoiceDraft($invoice);
+    }
 
-	public function createInvoiceDraft(Invoice $invoice)
-	{
-		//Make it possible to modify Invoice model before creating invoice in e-conomic
-		$event =  new InvoiceEvent([
-			'invoice' => $invoice
-		]);
-		$this->trigger(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT, $event);
-		if ($this->hasEventHandlers(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT)) {
-			$this->trigger(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT, $event);
-		}
+    public function createInvoiceDraft(Invoice $invoice)
+    {
+        //Make it possible to modify Invoice model before creating invoice in e-conomic
+        $event =  new InvoiceEvent([
+            'invoice' => $invoice
+        ]);
+        $this->trigger(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT, $event);
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT)) {
+            $this->trigger(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT, $event);
+        }
 
-		$response = Economic::getInstance()->getApi()->client->request->post('/invoices/drafts', $event->invoice->asArray());
+        $response = Economic::getInstance()->getApi()->client->request->post('/invoices/drafts', $event->invoice->asArray());
 
-		$status = $response->httpStatus();
+        $status = $response->httpStatus();
 
-		if ($status == 201) {
-			return $response;
-		}
+        if ($status == 201) {
+            return $response;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public function getInvoiceDraft($draftNumber){
-		$response = Economic::getInstance()->getApi()->client->request->get('/invoices/drafts/'.$draftNumber);
-		$status = $response->httpStatus();
+    public function getInvoiceDraft($draftNumber)
+    {
+        $response = Economic::getInstance()->getApi()->client->request->get('/invoices/drafts/' . $draftNumber);
+        $status = $response->httpStatus();
 
-		if($status == 200){
-			return $response;
-		}
+        if ($status == 200) {
+            return $response;
+        }
+
+        return false;
+    }
+
+    public function bookInvoiceDraft($draftNumber, $sendByEan = false)
+    {
+        $draftInvoice = $this->getInvoiceDraft($draftNumber);
+
+        if (!$draftInvoice) {
+            return false;
+        }
+
+        $params = [
+            "draftInvoice" => $draftInvoice->asObject()
+        ];
+
+        if ($sendByEan) {
+            $params['sendBy'] = 'ean';
+        }
+
+        $response = Economic::getInstance()->getApi()->client->request->post('/invoices/booked/', $params);
+
+        $status = $response->httpStatus();
+
+        if ($status == 201) {
+
+            $event =  new ApiResponseEvent([
+                'response' => $response
+            ]);
+
+            if ($this->hasEventHandlers(self::EVENT_AFTER_INVOICE_BOOKING)) {
+                $this->trigger(self::EVENT_AFTER_INVOICE_BOOKING, $event);
+            }
+
+            return $event->response;
+        }
+
+        return false;
+    }
+
+    public function getInvoice($invoicenumber)
+    {
+        $response = Economic::getInstance()->getApi()->client->request->get('/invoices/booked/' . $invoicenumber);
+        $status = $response->httpStatus();
+
+        if ($status == 200) {
+            return $response;
+        }
+
+        return false;
+    }
+
+    public function getInvoicePdf($invoicenumber)
+    {
+        $response = Economic::getInstance()->getApi()->client->request->get('/invoices/booked/' . $invoicenumber . '/pdf');
+        $status = $response->httpStatus();
+
+        if ($status == 200) {
+            return $response;
+        }
+
+        return false;
+    }
+
+    /**
+     * Jobs
+     */
+    public function addCreateInvoiceJob($event)
+    {
+        $order = $event->order;
+
+        if ($order->draftInvoiceNumber) {
+            return;
+        }
+
+        if ($order->invoiceNumber) {
+            return;
+        }
 
 
-		return false;
-	}
+        $billingAddress = $order->getBillingAddress();
+        $settings = Economic::getInstance()->getSettings();
 
-	public function bookInvoiceDraft($draftNumber)
-	{
-		$draftInvoice = $this->getInvoiceDraft($draftNumber);
+        if ($settings->onlyB2b && !$billingAddress->businessTaxId) {
+            return;
+        }
 
-		if(!$draftInvoice){
-			return false;
-		}
+        if ($event->orderHistory->newStatusId != Economic::getInstance()->getSettings()->invoiceOnStatusId) {
+            return;
+        }
 
-		$params = [
-			"draftInvoice" => $draftInvoice->asObject()
-		];
-
-		$response = Economic::getInstance()->getApi()->client->request->post('/invoices/booked/', $params);
-
-		$status = $response->httpStatus();
-
-		if ($status == 201) {
-
-			$event =  new ApiResponseEvent([
-				'response' => $response
-			]);
-
-			if ($this->hasEventHandlers(self::EVENT_AFTER_INVOICE_BOOKING)) {
-				$this->trigger(self::EVENT_AFTER_INVOICE_BOOKING, $event);
-			}
-
-			return $event->response;
-		}
-
-		return false;
-	}
-
-	public function getInvoice($invoicenumber){
-		$response = Economic::getInstance()->getApi()->client->request->get('/invoices/booked/'.$invoicenumber);
-		$status = $response->httpStatus();
-
-		if($status == 200){
-			return $response;
-		}
-
-		return false;
-	}
-
-	public function getInvoicePdf($invoicenumber){
-		$response = Economic::getInstance()->getApi()->client->request->get('/invoices/booked/'.$invoicenumber.'/pdf');
-		$status = $response->httpStatus();
-
-		if($status == 200){
-			return $response;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Jobs
-	 */
-	public function addCreateInvoiceJob($event)
-	{
-		$order = $event->order;
-
-		if($event->orderHistory->newStatusId != Economic::getInstance()->getSettings()->invoiceOnStatusId){
-			return;
-		}
-
-		if($order->invoiceNumber){
-			return;
-		}
-
-		Craft::$app->getQueue()->delay(10)->push(new CreateInvoice(
-			[
-				'orderId' => $order->id,
-			]
-		));
-	}
+        Craft::$app->getQueue()->delay(10)->push(new CreateInvoice(
+            [
+                'orderId' => $order->id,
+            ]
+        ));
+    }
 }

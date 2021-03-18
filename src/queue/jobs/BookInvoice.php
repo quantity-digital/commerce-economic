@@ -6,72 +6,79 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\queue\BaseJob;
 use QD\commerce\economic\Economic;
+use QD\commerce\economic\gateways\Ean;
 use yii\queue\RetryableJobInterface;
 
 class BookInvoice extends BaseJob implements RetryableJobInterface
 {
-	/**
-	 * @var int Order ID
-	 */
-	public $orderId;
+    /**
+     * @var int Order ID
+     */
+    public $orderId;
 
-	public function canRetry($attempt, $error)
-	{
-		$attempts = 5;
-		return $attempt < $attempts;
-	}
+    public function canRetry($attempt, $error)
+    {
+        $attempts = 5;
+        return $attempt < $attempts;
+    }
 
-	public function getTtr()
-	{
-		return 3600;
-	}
+    public function getTtr()
+    {
+        return 3600;
+    }
 
-	public function execute($queue)
-	{
-		try {
-			$order = Order::find()->id($this->orderId)->one();
-			$this->setProgress($queue, 0.05);
+    public function execute($queue)
+    {
+        try {
+            $order = Order::find()->id($this->orderId)->one();
+            $this->setProgress($queue, 0.05);
 
-			if ($order) {
-				$response = Economic::getInstance()->getInvoices()->bookInvoiceDraft($order->draftInvoiceNumber);
-				$this->setProgress($queue, 0.5);
+            if ($order) {
+                $sendViaEan = false;
 
-				if (!$response) {
-					$this->reAddToQueue();
-				}
+                if (Ean::class === get_class($order->getGateway())) {
+                    $sendViaEan = true;
+                }
 
-				$this->setProgress($queue, 0.90);
+                $response = Economic::getInstance()->getInvoices()->bookInvoiceDraft($order->draftInvoiceNumber, $sendViaEan);
+                $this->setProgress($queue, 0.5);
 
-				if ($response) {
-					$invoice = $response->asObject();
-					$order->invoiceNumber = $invoice->bookedInvoiceNumber;
-					Craft::$app->getElements()->saveElement($order);
-				}
+                if (!$response) {
+                    $this->reAddToQueue();
+                }
 
-				$this->setProgress($queue, 1);
-			}else{
-				$this->reAddToQueue();
-				$this->setProgress($queue, 1);
-			}
-		} catch (\Throwable $th) {
-			$this->reAddToQueue();
-		}
-	}
+                $this->setProgress($queue, 0.90);
 
-	// Protected Methods
-	// =========================================================================
+                if ($response) {
+                    $invoice = $response->asObject();
+                    $order->invoiceNumber = $invoice->bookedInvoiceNumber;
+                    Craft::$app->getElements()->saveElement($order);
+                }
 
-	protected function defaultDescription(): string
-	{
-		return 'Booking invoice in e-conomic';
-	}
+                $this->setProgress($queue, 1);
+            } else {
+                $this->reAddToQueue();
+                $this->setProgress($queue, 1);
+            }
+        } catch (\Throwable $th) {
+            $this->reAddToQueue();
+        }
+    }
 
-	protected function reAddToQueue()
-	{
-		Craft::$app->getQueue()->delay(300)->push(new BookInvoice(
-			[
-				'orderId' => $this->orderId,
-			]
-		));
-	}
+    // Protected Methods
+    // =========================================================================
+
+    protected function defaultDescription(): string
+    {
+        return 'Booking invoice in e-conomic';
+    }
+
+    protected function reAddToQueue()
+    {
+        Craft::$app->getQueue()->delay(300)->push(new BookInvoice(
+            [
+                'orderId' => $this->orderId,
+            ]
+        ));
+    }
 }
