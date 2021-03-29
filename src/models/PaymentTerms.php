@@ -9,47 +9,48 @@ use QD\commerce\economic\Economic;
 class PaymentTerms extends Model
 {
 
-    public $paymentTermsNumber;
+	public $paymentTermsNumber;
 
-    public function __construct()
-    {
-        //Default value is from the plugin settings
-        $this->setPaymentTermsNumber((int) Economic::getInstance()->getSettings()->defaultpaymentTermsNumber);
-    }
+	public function __construct()
+	{
+		//Default value is from the plugin settings
+		$this->setPaymentTermsNumber((int) Economic::getInstance()->getSettings()->defaultpaymentTermsNumber);
+	}
 
-    public static function transformFromOrder($order)
-    {
-        $paymentTerms = new self();
+	public static function transformFromOrder($order)
+	{
+		$paymentTerms = new self();
 
-        //Key 0 = gateway id
-        //Key 1 = paymentterm number
-        $gatewayId = $order->gatewayId;
+		//Key 0 = gateway id
+		//Key 1 = paymentterm number
+		$gatewayId = $order->gatewayId;
 
-        $gatewayRelations = Json::decode(Economic::getInstance()->getSettings()->gatewayPaymentTerms);
-        foreach ($gatewayRelations as $gatewayRelation) {
-            if ($gatewayRelations[0] == $gatewayId) {
-                $paymentTerms->setPaymentTermsNumber($gatewayRelation[1]);
-            }
-        }
+		$gatewayRelations = Json::decode(Economic::getInstance()->getSettings()->gatewayPaymentTerms);
 
-        return $paymentTerms;
-    }
+		foreach ($gatewayRelations as $gatewayRelation) {
+			if ($gatewayRelation[0] == $gatewayId) {
+				$paymentTerms->setPaymentTermsNumber($gatewayRelation[1]);
+			}
+		}
 
-    public static function transform($object)
-    {
-        $paymentTerms = new self();
-        $paymentTerms->setPaymentTermsNumber($object->paymentTermsNumber);
-        return $paymentTerms;
-    }
+		return $paymentTerms;
+	}
 
-    public function setPaymentTermsNumber(int $value)
-    {
-        $this->paymentTermsNumber = $value;
-        return $this;
-    }
+	public static function transform($object)
+	{
+		$paymentTerms = new self();
+		$paymentTerms->setPaymentTermsNumber($object->paymentTermsNumber);
+		return $paymentTerms;
+	}
 
-    public function getPaymentTermsNumber(int $value)
-    {
-        return $this->paymentTermsNumber;
-    }
+	public function setPaymentTermsNumber(int $value)
+	{
+		$this->paymentTermsNumber = $value;
+		return $this;
+	}
+
+	public function getPaymentTermsNumber(int $value)
+	{
+		return $this->paymentTermsNumber;
+	}
 }

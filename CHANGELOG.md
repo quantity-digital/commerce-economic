@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.14 - 2021-03-29
+
+### Fixed
+
+* Fixed error in PaymentTerms, which wouldnt match gatewayrelations to order gateway
+
 ## 1.0.11 - 2021-03-18
 
 ### Added
@@ -79,4 +85,3 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
-
