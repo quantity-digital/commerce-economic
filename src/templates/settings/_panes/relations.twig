@@ -7,7 +7,7 @@
 		<div>
 			{{ forms.editableTableField({
 				label: 'Gateway payment terms',
-				instructions: "Connect gateways to a paymentterm. If a gateway isn't connected to a paymentterm, the default value of the customer is used",
+				instructions: "Connect gateways to a paymentterm.",
 				id: 'gatewayPaymentTerms',
 				name: 'gatewayPaymentTerms',
 				cols: [
@@ -20,6 +20,11 @@
 						heading : 'Paymentterm',
 						type: 'select',
 						options: paymentTerms
+					},
+					{
+						heading : 'Invoice layout',
+						type: 'select',
+						options: layouts
 					},
 				],
 				rows: settings.gatewayPaymentTerms|json_decode

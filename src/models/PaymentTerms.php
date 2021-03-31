@@ -23,6 +23,7 @@ class PaymentTerms extends Model
 
 		//Key 0 = gateway id
 		//Key 1 = paymentterm number
+		//Key 2 = layout id
 		$gatewayId = $order->gatewayId;
 
 		$gatewayRelations = Json::decode(Economic::getInstance()->getSettings()->gatewayPaymentTerms);
