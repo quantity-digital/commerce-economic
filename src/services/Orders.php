@@ -75,8 +75,7 @@ class Orders extends Component
 
 		//Add order line items
 		foreach ($orderLines as $orderLine) {
-			$price = $orderLine->price;
-			$discountAmount = 0;
+			$price = $orderLine->salePrice;
 			$vatDecimal = 1;
 
 			$adjustments = $orderLine->getAdjustments();
@@ -91,7 +90,7 @@ class Orders extends Component
 				}
 
 				if ($adjustment->included && $adjustment->type === 'tax') {
-					$vatDecimal = $adjustment->amount / (($orderLine->price * $orderLine->qty) - $adjustment->amount);
+					$vatDecimal = $adjustment->amount / (($orderLine->salePrice * $orderLine->qty) - $adjustment->amount);
 					$price -= ($adjustment->amount / $orderLine->qty);
 					continue;
 				}
@@ -113,7 +112,6 @@ class Orders extends Component
 				],
 				"description" => $orderLine->description,
 				"quantity" => $orderLine->qty,
-				"discountAmount" => $discountAmount,
 				"unitNetPrice" => $price,
 			];
 		}
