@@ -91,18 +91,18 @@ class Orders extends Component
 				}
 
 				if ($adjustment->included && $adjustment->type === 'tax') {
-					$vatDecimal = $adjustment->amount / (($orderLine->subtotal * $orderLine->qty) - $adjustment->amount);
-					$price -= $adjustment->amount;
+					$vatDecimal = $adjustment->amount / (($orderLine->price * $orderLine->qty) - $adjustment->amount);
+					$price -= ($adjustment->amount / $orderLine->qty);
 					continue;
 				}
 
 				if ($adjustment->amount < 0) {
-					$discountAmount -= $adjustment->amount;
+					$price -= ($adjustment->amount / $orderLine->qty);
 					continue;
 				}
 
 				if ($adjustment->amount > 0) {
-					$price += $adjustment->amount;
+					$price += ($adjustment->amount / $orderLine->qty);
 					continue;
 				}
 			}

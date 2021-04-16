@@ -93,7 +93,5 @@ class Api extends Component
 		if ($status == 201 || $status == 200) {
 			return $response;
 		}
-
-		Log::error(\implode(',', $response->asArray()['errors']));
 	}
 }
