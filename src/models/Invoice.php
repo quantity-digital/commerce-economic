@@ -89,7 +89,7 @@ class Invoice extends Model
 			}
 
 			$invoice->references = (object)[
-				'other' => $order->eanReference,
+				'other' => $order->eanReference ? $order->eanReference : '',
 				'customerContact' => (object)[
 					'customerContactNumber' => $contactData['customerContactNumber']
 				]
