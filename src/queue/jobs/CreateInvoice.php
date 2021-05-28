@@ -84,6 +84,8 @@ class CreateInvoice extends BaseJob
 			$this->setProgress($queue, 1);
 		} catch (\Throwable $th) {
 			$this->reAddToQueue();
+			Log::error('Queue failed with an error');
+			Log::info(\print_r($th, true));
 			$this->setProgress($queue, 1);
 		}
 	}

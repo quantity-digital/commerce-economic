@@ -10,6 +10,7 @@ use QD\commerce\economic\Economic;
 use QD\commerce\economic\gateways\Ean;
 use QD\commerce\economic\queue\jobs\CapturePayment;
 use craft\commerce\records\Transaction as TransactionRecord;
+use QD\commerce\economic\helpers\Log;
 
 class Orders extends Component
 {
@@ -76,7 +77,7 @@ class Orders extends Component
 		//Add order line items
 		foreach ($orderLines as $orderLine) {
 			$price = $orderLine->salePrice;
-			$vatDecimal = 1;
+			$vatDecimal = 0.25;
 
 			$adjustments = $orderLine->getAdjustments();
 
@@ -89,7 +90,7 @@ class Orders extends Component
 					continue;
 				}
 
-				if ($adjustment->included && $adjustment->type === 'tax') {
+				if ($adjustment->included && $adjustment->type === 'tax' && $orderLine->salePrice > 0) {
 					$vatDecimal = $adjustment->amount / (($orderLine->salePrice * $orderLine->qty) - $adjustment->amount);
 					$price -= ($adjustment->amount / $orderLine->qty);
 					continue;
@@ -115,7 +116,7 @@ class Orders extends Component
 				"unitNetPrice" => $price,
 			];
 		}
-
+		Log::info('after lines');
 		//Add shipping line items
 		$adjustments = $order->getAdjustments();
 		$shippingRelations = Json::decode(Economic::getInstance()->getSettings()->shippingProductnumbers);

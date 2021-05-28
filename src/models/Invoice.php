@@ -76,15 +76,22 @@ class Invoice extends Model
 		if (Ean::class === get_class($order->getGateway())) {
 			// Invoice should include recipient contactperson etc.
 			$contactData = null;
-			$response = Economic::getInstance()->getCustomers()->getCustomerContactByName($invoice->customer->customerNumber, $order->eanContact);
-			$responseData = $response->asArray();
 
-			if ($responseData['collection']) {
+			$eanContact = $order->eanContact;
+			if (!$eanContact) {
+				$billing = $order->getBillingAddress();
+				$eanContact = $billing->firstName . ' ' . $billing->lastName;
+			}
+
+			$response = Economic::getInstance()->getCustomers()->getCustomerContactByName($invoice->customer->customerNumber, $eanContact);
+			$responseData = ($response) ? $response->asArray() : $response;
+
+			if ($responseData && isset($responseData['collection'][0])) {
 				$contactData = $responseData['collection'][0];
 			}
 
 			if (!$contactData) {
-				$response = Economic::getInstance()->getCustomers()->createCustomerContact($invoice->customer->customerNumber, $order->eanContact);
+				$response = Economic::getInstance()->getCustomers()->createCustomerContact($invoice->customer->customerNumber, $eanContact);
 				$contactData = $response->asArray();
 			}
 

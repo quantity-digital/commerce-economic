@@ -47,6 +47,7 @@ class Invoices extends Component
 		$status = $response->httpStatus();
 
 		if ($status == 201) {
+			Log::error(print_r($response), true);
 			return $response;
 		}
 

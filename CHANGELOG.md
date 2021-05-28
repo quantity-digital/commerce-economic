@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.19 - 2021-05-28
+
+### Fixed
+
+* Fixed error in invoice creation, when the salesprice was zero
+* Fixed error in invoice creation when no ean contact had been set
+
 ## 1.0.14 - 2021-03-29
 
 ### Fixed
@@ -85,3 +92,4 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
+
