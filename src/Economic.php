@@ -87,9 +87,15 @@ class Economic extends \craft\base\Plugin
 
 	public function getSettings()
 	{
-		$setting = Setting::find()->one();
-		if (!$setting) {
-			$setting = new Setting();
+		$setting = false;
+		try {
+			//code...
+			$setting = Setting::find()->one();
+			if (!$setting) {
+				$setting = new Setting();
+			}
+		} catch (\Throwable $th) {
+			//throw $th;
 		}
 
 		return $setting;
