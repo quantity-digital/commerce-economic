@@ -104,6 +104,7 @@ class PluginController extends Controller
 		$setting->vatZones = $settings['vatZones'] ? Json::encode($settings['vatZones']) : '{}';
 		$setting->syncVariants = isset($settings['syncVariants']) ? $settings['syncVariants'] : false;
 		$setting->onlyB2b = isset($settings['onlyB2b']) ? $settings['onlyB2b'] : false;
+		$setting->discountProductnumber = isset($settings['discountProductnumber']) ? $settings['discountProductnumber'] : null;
 
 		if (!Craft::$app->getElements()->saveElement($setting)) {
 			exit('Failed to save');

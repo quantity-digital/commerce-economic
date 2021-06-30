@@ -9,94 +9,95 @@ use QD\commerce\economic\db\Table;
 
 class Install extends Migration
 {
-    // Public Methods
-    // =========================================================================
+	// Public Methods
+	// =========================================================================
 
-    /**
-     * @inheritdoc
-     */
-    public function safeUp(): bool
-    {
+	/**
+	 * @inheritdoc
+	 */
+	public function safeUp(): bool
+	{
 
-        $this->createTables();
-        $this->createIndexes();
-        $this->addForeignKeys();
+		$this->createTables();
+		$this->createIndexes();
+		$this->addForeignKeys();
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function safeDown(): bool
-    {
-        $this->dropForeignKeys();
-        $this->dropTables();
-        return true;
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function safeDown(): bool
+	{
+		$this->dropForeignKeys();
+		$this->dropTables();
+		return true;
+	}
 
-    // Protected Methods
-    // =========================================================================
+	// Protected Methods
+	// =========================================================================
 
-    protected function createTables()
-    {
-        $this->createTable(Table::ORDERINFO, [
-            'id' => $this->integer()->notNull(),
-            'invoiceNumber' => $this->integer()->null(),
-            'draftInvoiceNumber' => $this->integer()->null(),
-            'eanNumber' => $this->string()->null(),
-            'eanReference' => $this->string()->null(),
-            'eanContact' => $this->string()->null(),
-            'PRIMARY KEY([[id]])',
-        ]);
+	protected function createTables()
+	{
+		$this->createTable(Table::ORDERINFO, [
+			'id' => $this->integer()->notNull(),
+			'invoiceNumber' => $this->integer()->null(),
+			'draftInvoiceNumber' => $this->integer()->null(),
+			'eanNumber' => $this->string()->null(),
+			'eanReference' => $this->string()->null(),
+			'eanContact' => $this->string()->null(),
+			'PRIMARY KEY([[id]])',
+		]);
 
-        $this->createTable(Table::SETTINGS, [
-            'id' => $this->integer()->notNull(),
-            'secretToken' => $this->string()->null(),
-            'grantToken' => $this->string()->null(),
-            'defaultpaymentTermsNumber' => $this->integer()->null(),
-            'defaultLayoutNumber' => $this->string()->null(),
-            'defaultCustomerGroup' => $this->integer()->null(),
-            'defaultVatZoneNumber' => $this->integer()->null(),
-            'defaultProductgroup' => $this->integer()->null(),
-            'invoiceEnabled' => $this->boolean()->null(),
-            'onlyB2b' => $this->boolean()->null(),
-            'statusIdAfterInvoice' => $this->string()->null(),
-            'invoiceOnStatusId' => $this->string()->null(),
-            'autoBookInvoice' => $this->boolean(),
-            'invoiceLayoutNumber' => $this->string()->null(),
-            'gatewayPaymentTerms' => $this->json()->null(),
-            'shippingProductnumbers' => $this->json()->null(),
-            'vatZones' => $this->json()->null(),
-            'syncVariants' => $this->boolean()->null(),
-            'convertAmount' => $this->boolean()->null(),
-            'uid' => $this->uid(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'PRIMARY KEY([[id]])',
-        ]);
-    }
+		$this->createTable(Table::SETTINGS, [
+			'id' => $this->integer()->notNull(),
+			'secretToken' => $this->string()->null(),
+			'grantToken' => $this->string()->null(),
+			'defaultpaymentTermsNumber' => $this->integer()->null(),
+			'defaultLayoutNumber' => $this->string()->null(),
+			'defaultCustomerGroup' => $this->integer()->null(),
+			'defaultVatZoneNumber' => $this->integer()->null(),
+			'defaultProductgroup' => $this->integer()->null(),
+			'invoiceEnabled' => $this->boolean()->null(),
+			'onlyB2b' => $this->boolean()->null(),
+			'statusIdAfterInvoice' => $this->string()->null(),
+			'invoiceOnStatusId' => $this->string()->null(),
+			'autoBookInvoice' => $this->boolean(),
+			'invoiceLayoutNumber' => $this->string()->null(),
+			'gatewayPaymentTerms' => $this->json()->null(),
+			'shippingProductnumbers' => $this->json()->null(),
+			'discountProductnumber' => $this->string()->null(),
+			'vatZones' => $this->json()->null(),
+			'syncVariants' => $this->boolean()->null(),
+			'convertAmount' => $this->boolean()->null(),
+			'uid' => $this->uid(),
+			'dateCreated' => $this->dateTime()->notNull(),
+			'dateUpdated' => $this->dateTime()->notNull(),
+			'PRIMARY KEY([[id]])',
+		]);
+	}
 
-    protected function createIndexes()
-    {
-        $this->createIndex(null, Table::ORDERINFO, 'invoiceNumber');
-    }
+	protected function createIndexes()
+	{
+		$this->createIndex(null, Table::ORDERINFO, 'invoiceNumber');
+	}
 
-    protected function addForeignKeys()
-    {
-        $this->addForeignKey(null, Table::ORDERINFO, ['id'], CommerceTable::ORDERS, ['id'], 'CASCADE', 'CASCADE');
-    }
+	protected function addForeignKeys()
+	{
+		$this->addForeignKey(null, Table::ORDERINFO, ['id'], CommerceTable::ORDERS, ['id'], 'CASCADE', 'CASCADE');
+	}
 
-    protected function dropForeignKeys()
-    {
-        if ($this->db->tableExists(Table::ORDERINFO)) {
-            MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERINFO, $this);
-        }
-    }
+	protected function dropForeignKeys()
+	{
+		if ($this->db->tableExists(Table::ORDERINFO)) {
+			MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERINFO, $this);
+		}
+	}
 
-    protected function dropTables()
-    {
-        $this->dropTableIfExists(Table::ORDERINFO);
-        $this->dropTableIfExists(Table::SETTINGS);
-    }
+	protected function dropTables()
+	{
+		$this->dropTableIfExists(Table::ORDERINFO);
+		$this->dropTableIfExists(Table::SETTINGS);
+	}
 }

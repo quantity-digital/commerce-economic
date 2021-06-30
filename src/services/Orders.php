@@ -11,6 +11,8 @@ use QD\commerce\economic\gateways\Ean;
 use QD\commerce\economic\queue\jobs\CapturePayment;
 use craft\commerce\records\Transaction as TransactionRecord;
 use QD\commerce\economic\helpers\Log;
+use craft\commerce\Plugin as CommercePlugin;
+use craft\commerce\models\Settings;
 
 class Orders extends Component
 {
@@ -73,6 +75,7 @@ class Orders extends Component
 	{
 		$orderLines = $order->getLineItems();
 		$lines = [];
+		$productValue = 0;
 
 		//Add order line items
 		foreach ($orderLines as $orderLine) {
@@ -115,30 +118,70 @@ class Orders extends Component
 				"quantity" => $orderLine->qty,
 				"unitNetPrice" => $price,
 			];
+
+			//Save total product value
+			$productValue += $orderLine->qty * $price;
 		}
-		Log::info('after lines');
+
 		//Add shipping line items
 		$adjustments = $order->getAdjustments();
 		$shippingRelations = Json::decode(Economic::getInstance()->getSettings()->shippingProductnumbers);
 		$shippingProductNumber = null;
+		$discountProductnumber = Economic::getInstance()->getSettings()->discountProductnumber ?: false;
+		$strategy = CommercePlugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
+		$totalDiscount = 0;
+		$shippingPrice = 0;
+
 		foreach ($shippingRelations as $shippingRelation) {
 			if ($shippingRelation[0] == $order->getShippingMethod()->id) {
 				$shippingProductNumber = $shippingRelation[1];
 			}
 		}
 
-		if ($shippingProductNumber) {
-			foreach ($adjustments as $adjustment) {
-				if ($adjustment->type === 'shipping') {
-					$lines[] = [
-						"product" => [
-							"productNumber" => $shippingProductNumber
-						],
-						"description" => 'Shipping',
-						"quantity" => 1,
-						"unitNetPrice" => $adjustment->amount / ($vatDecimal + 1),
-					];
+		//Loop thru each order adjustments
+		foreach ($adjustments as $adjustment) {
+			if ($adjustment->type === 'shipping' && $shippingProductNumber) {
+				$unitPrice = $adjustment->amount / ($vatDecimal + 1);
+				$lines[] = [
+					"product" => [
+						"productNumber" => $shippingProductNumber
+					],
+					"description" => 'Shipping - ' . $adjustment->name,
+					"quantity" => 1,
+					"unitNetPrice" => $unitPrice,
+				];
+
+				$shippingPrice += $unitPrice;
+			}
+
+			if ($adjustment->type === 'discount' && $discountProductnumber) {
+				$discount = $adjustment->amount / ($vatDecimal + 1);
+
+				//If we dont allow negativ order totals, check if discount is greater than remaining total
+				if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
+					if ($shippingPrice + $productValue - $totalDiscount < $discount) {
+						$discount = $shippingPrice + $productValue - $totalDiscount;
+					}
 				}
+
+				//If we dont allow for discount on shipping, check if discount is grater than total product value
+				if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
+					if ($productValue - $totalDiscount < $discount) {
+						$discount = $productValue - $totalDiscount;
+					}
+				}
+
+				$lines[] = [
+					"product" => [
+						"productNumber" => $discountProductnumber
+					],
+					"description" => $adjustment->name,
+					"quantity" => 1,
+					"unitNetPrice" => $discount,
+				];
+
+				//Update total applied discount
+				$totalDiscount = $discount;
 			}
 		}
 

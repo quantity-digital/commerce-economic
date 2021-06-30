@@ -47,10 +47,11 @@ class Invoices extends Component
 		$status = $response->httpStatus();
 
 		if ($status == 201) {
-			Log::error(print_r($response), true);
 			return $response;
 		}
 
+		//Log error
+		Log::error(\print_r($response, true));
 		return false;
 	}
 
@@ -63,6 +64,7 @@ class Invoices extends Component
 			return $response;
 		}
 
+		Log::error(\print_r($response, true));
 		return false;
 	}
 
@@ -100,6 +102,7 @@ class Invoices extends Component
 			return $event->response;
 		}
 
+		Log::error(\print_r($response, true));
 		return false;
 	}
 

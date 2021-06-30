@@ -1,6 +1,18 @@
-# Release Notes for QuickPay for Craft Commerce
+# Release Notes for E-conomic for Craft Commerce
 
 All notable changes to this project will be documented in this file.
+
+## 1.020 - 2021-06-30
+
+### Added
+
+* Added error logs for invoice creation and booking
+* Added new database column for discount productnumber setting
+* Added settings option to set productnumber for order discounts/vouchers
+
+### Fixed
+
+* Fixed invoices missing discounts/vouchers not applied to a specific product
 
 ## 1.0.19 - 2021-05-28
 
@@ -92,4 +104,3 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
-
