@@ -125,10 +125,10 @@ class Orders extends Component
 
 		//Add shipping line items
 		$adjustments = $order->getAdjustments();
-		$shippingRelations = Json::decode(Economic::getInstance()->getSettings()->shippingProductnumbers);
+		$shippingRelations = Json::decode(Economic::getInstance()->getEconomicSettings()->shippingProductnumbers);
 		$shippingProductNumber = null;
-		$discountProductnumber = Economic::getInstance()->getSettings()->discountProductnumber ?: false;
-		$strategy = CommercePlugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
+		$discountProductnumber = Economic::getInstance()->getEconomicSettings()->discountProductnumber ?: false;
+		$strategy = CommercePlugin::getInstance()->getEconomicSettings()->minimumTotalPriceStrategy;
 		$totalDiscount = 0;
 		$shippingPrice = 0;
 

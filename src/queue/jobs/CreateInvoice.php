@@ -67,13 +67,13 @@ class CreateInvoice extends BaseJob
 				$order->draftInvoiceNumber = (int) $invoice->draftInvoiceNumber;
 				$this->setProgress($queue, 0.92);
 				Craft::$app->getElements()->saveElement($order);
-				$order->setStatus(Economic::getInstance()->getSettings()->statusIdAfterInvoice);
+				$order->setStatus(Economic::getInstance()->getEconomicSettings()->statusIdAfterInvoice);
 				$this->setProgress($queue, 0.94);
 			}
 
 			$this->setProgress($queue, 0.95);
 
-			if (Economic::getInstance()->getSettings()->autoBookInvoice) {
+			if (Economic::getInstance()->getEconomicSettings()->autoBookInvoice) {
 				Craft::$app->getQueue()->delay(10)->push(new BookInvoice(
 					[
 						'orderId' => $order->id,

@@ -13,7 +13,7 @@ class CustomerGroup extends Model
 	public function __construct()
 	{
 		//Default value is from the plugin settings
-		$this->setCustomerGroupNumber((int) Economic::getInstance()->getSettings()->defaultCustomerGroup);
+		$this->setCustomerGroupNumber((int) Economic::getInstance()->getEconomicSettings()->defaultCustomerGroup);
 	}
 
 	public static function transform($object)

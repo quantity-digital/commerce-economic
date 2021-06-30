@@ -14,7 +14,7 @@ class PaymentTerms extends Model
 	public function __construct()
 	{
 		//Default value is from the plugin settings
-		$this->setPaymentTermsNumber((int) Economic::getInstance()->getSettings()->defaultpaymentTermsNumber);
+		$this->setPaymentTermsNumber((int) Economic::getInstance()->getEconomicSettings()->defaultpaymentTermsNumber);
 	}
 
 	public static function transformFromOrder($order)
@@ -26,7 +26,7 @@ class PaymentTerms extends Model
 		//Key 2 = layout id
 		$gatewayId = $order->gatewayId;
 
-		$gatewayRelations = Json::decode(Economic::getInstance()->getSettings()->gatewayPaymentTerms);
+		$gatewayRelations = Json::decode(Economic::getInstance()->getEconomicSettings()->gatewayPaymentTerms);
 
 		foreach ($gatewayRelations as $gatewayRelation) {
 			if ($gatewayRelation[0] == $gatewayId) {

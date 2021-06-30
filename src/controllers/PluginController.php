@@ -19,7 +19,7 @@ class PluginController extends Controller
 	public function actionSettings()
 	{
 		//Get from db model instead of project config
-		$this->settings = Economic::getInstance()->getSettings();
+		$this->settings = Economic::getInstance()->getEconomicSettings();
 
 		//Get commerce order statuses
 		$statuses = [

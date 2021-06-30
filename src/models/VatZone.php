@@ -14,7 +14,7 @@ class VatZone extends Model
     public function __construct()
     {
         //Default value is from the plugin settings
-        $this->setVatZoneNumber((int) Economic::getInstance()->getSettings()->defaultVatZoneNumber);
+        $this->setVatZoneNumber((int) Economic::getInstance()->getEconomicSettings()->defaultVatZoneNumber);
     }
 
     public static function transformFromOrder($order)
@@ -26,7 +26,7 @@ class VatZone extends Model
         $orderTaxRate = Economic::getInstance()->getOrders()->getTaxRatesForOrder($order);
 
         if ($orderTaxRate) {
-            $vatRelations = Json::decode(Economic::getInstance()->getSettings()->vatZones);
+            $vatRelations = Json::decode(Economic::getInstance()->getEconomicSettings()->vatZones);
             foreach ($vatRelations as $vatRelation) {
                 if ($vatRelation[0] == $orderTaxRate['id']) {
                     $vatZone->setVatZoneNumber($vatRelation[1]);

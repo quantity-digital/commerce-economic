@@ -19,7 +19,7 @@ class Api extends Component
 
 	public function __construct()
 	{
-		$settings = Economic::getInstance()->getPlugin()->getSettings();
+		$settings = Economic::getInstance()->getPlugin()->getEconomicSettings();
 		$grantToken = Craft::parseEnv($settings->grantToken);
 		$secretToken = Craft::parseEnv($settings->secretToken);
 		$this->client = new RestClient($secretToken, $grantToken);

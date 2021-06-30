@@ -57,7 +57,7 @@ class Invoice extends Model
 		$layout = new Layout();
 		$gatewayId = $order->gatewayId;
 
-		$gatewayRelations = Json::decode(Economic::getInstance()->getSettings()->gatewayPaymentTerms);
+		$gatewayRelations = Json::decode(Economic::getInstance()->getEconomicSettings()->gatewayPaymentTerms);
 
 		foreach ($gatewayRelations as $gatewayRelation) {
 			if ($gatewayRelation[0] == $gatewayId) {

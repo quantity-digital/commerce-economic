@@ -42,7 +42,7 @@ class Product extends Model
 		}
 
 		if (!$productGroupNumber) {
-			$productGroupNumber = Economic::getInstance()->getSettings()->defaultProductgroup;
+			$productGroupNumber = Economic::getInstance()->getEconomicSettings()->defaultProductgroup;
 		}
 
 		$product = new self();

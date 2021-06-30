@@ -147,13 +147,13 @@ class Invoices extends Component
 
 
 		$billingAddress = $order->getBillingAddress();
-		$settings = Economic::getInstance()->getSettings();
+		$settings = Economic::getInstance()->getEconomicSettings();
 
 		if ($settings->onlyB2b && !$billingAddress->businessTaxId) {
 			return;
 		}
 
-		if ($event->orderHistory->newStatusId != Economic::getInstance()->getSettings()->invoiceOnStatusId) {
+		if ($event->orderHistory->newStatusId != Economic::getInstance()->getEconomicSettings()->invoiceOnStatusId) {
 			return;
 		}
 

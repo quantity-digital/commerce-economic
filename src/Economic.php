@@ -44,7 +44,7 @@ class Economic extends \craft\base\Plugin
 	 * @inheritDoc
 	 */
 	public $schemaVersion = '1.0.3';
-	public $hasCpSettings = true;
+	public $hasCpSettings = false;
 	public $hasCpSection = true;
 
 	// Public Methods
@@ -85,7 +85,7 @@ class Economic extends \craft\base\Plugin
 		return 'E-conomic';
 	}
 
-	public function getSettings()
+	public function getEconomicSettings()
 	{
 		$setting = false;
 		try {
@@ -171,7 +171,7 @@ class Economic extends \craft\base\Plugin
 		);
 
 		//Invoicing
-		if ($this->getSettings() && $this->getSettings()->invoiceEnabled) {
+		if ($this->getEconomicSettings() && $this->getEconomicSettings()->invoiceEnabled) {
 			Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, [$this->getInvoices(), 'addCreateInvoiceJob']);
 		}
 
@@ -190,7 +190,7 @@ class Economic extends \craft\base\Plugin
 			]);
 		});
 
-		if ($this->getSettings() && $this->getSettings()->syncVariants) {
+		if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
 			// Ads job to queue when variant is save for product syncing
 			// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
 			Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
