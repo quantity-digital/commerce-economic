@@ -128,7 +128,7 @@ class Orders extends Component
 		$shippingRelations = Json::decode(Economic::getInstance()->getEconomicSettings()->shippingProductnumbers);
 		$shippingProductNumber = null;
 		$discountProductnumber = Economic::getInstance()->getEconomicSettings()->discountProductnumber ?: false;
-		$strategy = CommercePlugin::getInstance()->getEconomicSettings()->minimumTotalPriceStrategy;
+		$strategy = CommercePlugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
 		$totalDiscount = 0;
 		$shippingPrice = 0;
 
