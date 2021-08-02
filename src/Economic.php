@@ -23,7 +23,6 @@ use QD\commerce\economic\behaviors\OrderBehavior;
 use QD\commerce\economic\behaviors\OrderQueryBehavior;
 use QD\commerce\economic\elements\Setting;
 use QD\commerce\economic\gateways\Ean;
-use QD\commerce\economic\models\Settings;
 use QD\commerce\economic\plugin\Services;
 use QD\commerce\economic\variables\Economic as VariablesEconomic;
 use QD\commerce\economic\fields\ProductGroup;
@@ -100,11 +99,6 @@ class Economic extends \craft\base\Plugin
 
 		return $setting;
 	}
-
-	// public function getSettingsResponse()
-	// {
-	//     Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('economic/settings'));
-	// }
 
 	private function registerVariables()
 	{

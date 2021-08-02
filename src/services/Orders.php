@@ -100,7 +100,7 @@ class Orders extends Component
 				}
 
 				if ($adjustment->amount < 0) {
-					$price -= ($adjustment->amount / $orderLine->qty);
+					$price += ($adjustment->amount / $orderLine->qty);
 					continue;
 				}
 
@@ -154,7 +154,7 @@ class Orders extends Component
 				$shippingPrice += $unitPrice;
 			}
 
-			if ($adjustment->type === 'discount' && $discountProductnumber) {
+			if ($adjustment->type === 'discount' && $discountProductnumber && !$adjustment->lineItemId) {
 				$discount = $adjustment->amount / ($vatDecimal + 1);
 
 				//If we dont allow negativ order totals, check if discount is greater than remaining total
