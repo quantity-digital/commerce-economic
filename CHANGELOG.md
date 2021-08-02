@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.25
+
+### Fixed
+
+* Fixed error where discount on lineitems wasn't calculated correctly
+
+### Changed
+
+* Line items now used the stores vat-decimal when removing VAT from unit price.
+
 ## 1.0.24 - 2021-07-13
 
 ### Fixed
