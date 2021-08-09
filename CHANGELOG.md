@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.26 - 2021-08-09
+
+### Added
+
+* Added `Order` to `EVENT_BEFORE_CREATE_INVOICE_DRAFT`
+
 ## 1.0.25
 
 ### Fixed
