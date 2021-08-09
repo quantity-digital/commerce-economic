@@ -28,15 +28,17 @@ class Invoices extends Component
 	{
 		//Get base invoice model
 		$invoice = Invoice::transformFromOrder($order);
-		return $this->createInvoiceDraft($invoice);
+		return $this->createInvoiceDraft($invoice, $order);
 	}
 
-	public function createInvoiceDraft(Invoice $invoice)
+	public function createInvoiceDraft(Invoice $invoice, Order $order)
 	{
 		//Make it possible to modify Invoice model before creating invoice in e-conomic
 		$event =  new InvoiceEvent([
-			'invoice' => $invoice
+			'invoice' => $invoice,
+			'order' => $order
 		]);
+
 		$this->trigger(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT, $event);
 		if ($this->hasEventHandlers(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT)) {
 			$this->trigger(self::EVENT_BEFORE_CREATE_INVOICE_DRAFT, $event);
