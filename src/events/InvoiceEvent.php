@@ -6,8 +6,9 @@ use craft\events\CancelableEvent;
 
 class InvoiceEvent extends CancelableEvent
 {
-    /**
-     * @var Invoice Subscription
-     */
-    public $invoice;
+	/**
+	 * @var Invoice Subscription
+	 */
+	public $invoice;
+	public $order;
 }
