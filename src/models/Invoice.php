@@ -79,8 +79,8 @@ class Invoice extends Model
 
 			$eanContact = $order->eanContact;
 			if (!$eanContact) {
-				$billing = $order->getBillingAddress();
-				$eanContact = $billing->firstName . ' ' . $billing->lastName;
+				$billingAddress = $order->getBillingAddress();
+				$eanContact = ($billingAddress->fullName) ? $billingAddress->fullName : $billingAddress->firstName . ' ' . $billingAddress->lastName;
 			}
 
 			$response = Economic::getInstance()->getCustomers()->getCustomerContactByName($invoice->customer->customerNumber, $eanContact);

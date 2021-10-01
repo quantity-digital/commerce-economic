@@ -184,11 +184,12 @@ class Economic extends \craft\base\Plugin
 			]);
 		});
 
-		if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
-			// Ads job to queue when variant is save for product syncing
-			// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
-			Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
-		}
+		//Disabled due to high serverload
+		// if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
+		// 	// Ads job to queue when variant is save for product syncing
+		// 	// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
+		// 	Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
+		// }
 	}
 
 	protected function registerFieldTypes()

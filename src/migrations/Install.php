@@ -54,23 +54,40 @@ class Install extends Migration
 			'id' => $this->integer()->notNull(),
 			'secretToken' => $this->string()->null(),
 			'grantToken' => $this->string()->null(),
+
+			//Defaults
 			'defaultpaymentTermsNumber' => $this->integer()->null(),
 			'defaultLayoutNumber' => $this->string()->null(),
 			'defaultCustomerGroup' => $this->integer()->null(),
 			'defaultVatZoneNumber' => $this->integer()->null(),
 			'defaultProductgroup' => $this->integer()->null(),
+
+			//Invoice settings
 			'invoiceEnabled' => $this->boolean()->null(),
 			'onlyB2b' => $this->boolean()->null(),
 			'statusIdAfterInvoice' => $this->string()->null(),
 			'invoiceOnStatusId' => $this->string()->null(),
 			'autoBookInvoice' => $this->boolean(),
 			'invoiceLayoutNumber' => $this->string()->null(),
+
+			//Quotations settings
+			'quotationsEnabled' => $this->boolean(),
+			'quoteOnStatusId' => $this->string(),
+			'statusIdAfterQuotation' => $this->string(),
+
+			//Orders settings
+			'ordersEnabled' => $this->boolean(),
+			'orderOnStatusId' => $this->string(),
+			'statusIdAfterOrder' => $this->string(),
+
+			//Relations
 			'gatewayPaymentTerms' => $this->json()->null(),
 			'shippingProductnumbers' => $this->json()->null(),
 			'discountProductnumber' => $this->string()->null(),
 			'vatZones' => $this->json()->null(),
 			'syncVariants' => $this->boolean()->null(),
 			'convertAmount' => $this->boolean()->null(),
+
 			'uid' => $this->uid(),
 			'dateCreated' => $this->dateTime()->notNull(),
 			'dateUpdated' => $this->dateTime()->notNull(),
