@@ -1,0 +1,164 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
+
+{% set continueEditingUrl = url('commerce/creditnotes/edit/'~creditnote.id) %}
+{# {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceproducts commerceproductsedit" %} #}
+
+{% if not creditnote.isCompleted %}
+	{% set fullPageForm = true %}
+	{% set saveShortcutRedirect = continueEditingUrl %}
+
+	{% set formActions = [
+        {
+            label: 'Save and continue editing'|t('commerce'),
+            redirect: continueEditingUrl|hash,
+            shortcut: true,
+            retainScroll: true,
+        }
+        ]
+    %}
+{% endif %}
+
+{% set selectedSubnavItem = "creditnotes" %}
+{% set docTitle = 'Test' %}
+{% set title = 'Creditnote #' ~ creditnote.id %}
+
+{% set crumbs = [
+    { label: "Creditnotes"|t('site'), url: url('commerce/creditnotes') },
+] %}
+
+
+{% block toolbar %}
+	{% if not creditnote.isCompleted %}
+		<input type="submit" name="send" value="{{ 'Complete creditnote'|t('commerce-economic') }}" class="btn">
+	{% endif %}
+	{% if  creditnote.isCompleted and creditnote.invoiceNumber %}
+		<form method="post">
+			{{ actionInput('commerce-economic/creditnotes/save') }}
+			{{ hiddenInput('creditnoteId', creditnote.id) }}
+			{{ csrfInput() }}
+			<input type="submit" name="reSend" value="{{ 'Resend to customer'|t('commerce-economic') }}" class="btn">
+		</form>
+	{% endif %}
+{% endblock %}
+
+{% block details %}
+	<div class="details-container">
+		<div class="details">
+			<div class="order-meta-container">
+				<div class="order-meta meta read-only">
+					{% if creditnote.invoiceNumber %}
+						<div class="data">
+							<h5 class="heading">Creditnote</h5>
+							<p class="value">{{ creditnote.invoiceNumber }}</p>
+						</div>
+					{% endif %}
+					{% if creditnote.orderId %}
+						<div class="data">
+							<h5 class="heading">{{ 'Order'|t('commerce-economic') }}</h5>
+							<p class="value">
+								<a href="{{ creditnote.order.getCpEditUrl() }}">{{ creditnote.orderId }}</a>
+							</p>
+						</div>
+					{% endif %}
+					<div class="data">
+						<h5 class="heading">{{ 'Creditnote date'|t('commerce-economic') }}</h5>
+						<p class="value">{{ creditnote.dateCreated|date }}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="details-container">
+		<div class="details">
+			<div class="order-meta-container">
+				<div class="order-meta meta read-only">
+					<div class="data">
+						{{ forms.lightswitchField({
+                            label: 'Re-stock?'|t('commerce-economic'),
+                            id: 'restock',
+                            name: 'restock',
+                            on: creditnote.restock,
+                            disabled:not not creditnote.isCompleted,
+                            value: 1,
+                            instructions: 'Check if the items should be re-stocked'|t('commerce-economic')
+                        }) }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block content %}
+	{% if not creditnote.isCompleted %}
+		{{ actionInput('commerce-economic/creditnotes/save') }}
+		{{ hiddenInput('creditnoteId', creditnote.id) }}
+	{% endif %}
+
+	<table>
+		<thead>
+			<th>{{ 'Available'|t }}</th>
+			<th>{{ 'Return'|t }}</th>
+			<th>{{ 'Description'|t }}</th>
+			<th>{{ 'SKU'|t }}</th>
+			<th>{{ 'Unit price '|t }}</th>
+			<th>{{ 'Total'|t }}</th>
+		</thead>
+		<tbody>
+			{% set paymentCurrency = creditnote.order.paymentCurrency %}
+			{% for row in creditnote.rows %}
+				<tr class="row">
+					<td>{{ row.available }}</td>
+					{% if not creditnote.isCompleted and row.available %}
+						<td>
+							<input name="rows[{{row.id}}][qty]" class="text rowQty fullwidth" data-id="{{row.id}}" data-currency="{{paymentCurrency}}" data-price="{{row.price}}" type="number" value="{{row.qty}}" autocomplete="off" step="any" max="{{row.available}}">
+						</td>
+					{% else %}
+						<td>
+							-{{row.qty}}
+						</td>
+					{% endif %}
+					<td>{{ row.description }}</td>
+					<td>{{ row.sku }}</td>
+					<td>{{ row.price|commerceCurrency(paymentCurrency) }}</td>
+					<td class="row{{row.id}}">{{ row.total|commerceCurrency(paymentCurrency) }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3"></td>
+				<td>
+					<strong>Total</strong>
+				</td>
+				<td class="totalPrice">{{creditnote.total}}</td>
+			</tr>
+		</tfoot>
+	</table>
+{% endblock %}
+
+{% js %}
+$(".rowQty").on("input", function() {
+   let price = $(this).data('price');
+   let qty = $(this).val();
+
+   var formatter = new Intl.NumberFormat('en-US', {
+	style: 'currency',
+	currency: $(this).data('currency'),
+	});
+
+	let subtotal = price * qty;
+
+   $(".row"+$(this).data('id')).html(formatter.format(subtotal))
+
+	var totalPrice = 0;
+   $(".rowQty").each(function() {
+	   totalPrice = totalPrice + ($(this).data('price') * $(this).val());
+   })
+
+   $(".totalPrice").html(formatter.format(totalPrice))
+});
+{% endjs %}

@@ -1,0 +1,28 @@
+{% if creditnotes %}
+	<div class="meta read-only">
+
+		<h2 class="metaTitle">Credit notes</h2>
+
+		{% for creditnote in creditnotes %}
+			<div class="data">
+				<h5 class="heading">{{creditnote.dateCreated|date}}</h5>
+				<span class="value">
+					<span class="commerceStatusLabel">
+						<span class="status {{creditnote.isCompleted ? 'green' : 'red'}}"></span>
+						<a href="{{creditnote.getCpEditUrl()}}">
+							{{'Creditnote'|t('commerce-economic')}}
+							{{creditnote.id}}
+						</a>
+					</span>
+				</span>
+			</div>
+		{% endfor %}
+	</div>
+
+{% endif %}
+
+<style>
+	h2.metaTitle {
+		margin-top: 14px !important;
+	}
+</style>

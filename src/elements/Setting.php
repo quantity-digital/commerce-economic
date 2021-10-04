@@ -30,6 +30,12 @@ class Setting extends Element
 	public $onlyB2b = false;
 	public $convertAmount = false;
 
+	//Creditnotes
+	public $autoBookCreditnote = false;
+	public $creditnoteLayoutNumber;
+	public $creditnoteEmailTemplate;
+	public $creditnoteEmailSubject;
+
 	// Relations
 	public $gatewayPaymentTerms;
 	public $vatZones;
@@ -75,6 +81,12 @@ class Setting extends Element
 		$record->invoiceOnStatusId = $this->invoiceOnStatusId;
 		$record->autoBookInvoice = $this->autoBookInvoice;
 		$record->invoiceLayoutNumber = $this->invoiceLayoutNumber;
+
+		$record->autoBookCreditnote = $this->autoBookCreditnote;
+		$record->creditnoteLayoutNumber = $this->creditnoteLayoutNumber;
+		$record->creditnoteEmailTemplate = $this->creditnoteEmailTemplate;
+		$record->creditnoteEmailSubject = $this->creditnoteEmailSubject;
+
 		$record->gatewayPaymentTerms = $this->gatewayPaymentTerms;
 		$record->shippingProductnumbers = $this->shippingProductnumbers;
 		$record->discountProductnumber = $this->discountProductnumber;

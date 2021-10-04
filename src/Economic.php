@@ -12,20 +12,24 @@ use craft\commerce\services\OrderHistories;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\PluginEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Plugins;
+use craft\web\twig\variables\Cp;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use QD\commerce\economic\behaviors\OrderBehavior;
 use QD\commerce\economic\behaviors\OrderQueryBehavior;
+use QD\commerce\economic\elements\Creditnote;
 use QD\commerce\economic\elements\Setting;
 use QD\commerce\economic\gateways\Ean;
 use QD\commerce\economic\plugin\Services;
 use QD\commerce\economic\variables\Economic as VariablesEconomic;
 use QD\commerce\economic\fields\ProductGroup;
+use QD\commerce\economic\plugin\Routes;
 use yii\base\Event;
 
 class Economic extends \craft\base\Plugin
@@ -42,7 +46,7 @@ class Economic extends \craft\base\Plugin
 	/**
 	 * @inheritDoc
 	 */
-	public $schemaVersion = '1.0.3';
+	public $schemaVersion = '1.1.0';
 	public $hasCpSettings = false;
 	public $hasCpSection = true;
 
@@ -50,6 +54,7 @@ class Economic extends \craft\base\Plugin
 	// =========================================================================
 
 	use Services;
+	use Routes;
 
 	/**
 	 * @inheritdoc
@@ -67,6 +72,7 @@ class Economic extends \craft\base\Plugin
 		$this->registerEventListeners();
 		$this->registerFieldTypes();
 		$this->registerElementTypes();
+		$this->registerCpRoutes();
 
 		Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function (PluginEvent $event) {
 			if ($event->plugin === $this) {
@@ -184,11 +190,59 @@ class Economic extends \craft\base\Plugin
 			]);
 		});
 
+		Craft::$app->view->hook('cp.commerce.order.edit.order-secondary-actions', function (&$context) {
+			return Craft::$app->view->renderTemplate('commerce-economic/order/secondary-actions', $context);
+		});
+
+		Craft::$app->view->hook('cp.commerce.order.edit.details', function (&$context) {
+			$order = $context['order'];
+
+			$context['creditnotes'] = Creditnote::find()->orderId($order->id)->all();
+
+			return Craft::$app->view->renderTemplate('commerce-economic/order/details', $context);
+		});
+
+
+
+
 		if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
 			// Ads job to queue when variant is save for product syncing
-			// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
 			Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
 		}
+
+		Event::on(
+			Cp::class,
+			Cp::EVENT_REGISTER_CP_NAV_ITEMS,
+			function (RegisterCpNavItemsEvent $event) {
+
+				$menuKey = 0;
+				foreach ($event->navItems as $key => $navitem) {
+					if ($navitem['url'] === 'commerce') {
+						$menuKey = $key;
+						break;
+					}
+				}
+
+				$navItem[] = [
+					'url' => 'comtec',
+					'label' => 'Customers',
+					'icon' => '@QD/customers/resources/icons/comtec.svg',
+					'subnav' => [],
+				];
+
+				$commerceNav = $event->navItems[$menuKey];
+
+				$navItem = ['creditnotes' => ['label' => 'Credit notes', 'url' => 'commerce/creditnotes']];
+
+				// array_splice($commerceNav['subnav'], 1, 0, $navItem);
+
+				$commerceNav['subnav'] = array_slice($commerceNav['subnav'], 0, 1, true) +
+					$navItem +
+					array_slice($commerceNav['subnav'], 1, count($commerceNav['subnav']) - 1, true);
+
+				$event->navItems[$menuKey] = $commerceNav;
+			}
+		);
 	}
 
 	protected function registerFieldTypes()

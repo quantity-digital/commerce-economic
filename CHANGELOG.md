@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.0 - 2021-10-04
+
+### New feature
+
+Added the possiblity to create credit notes via an order. Credit notes is stored in Craft CMS, and synced to e-conomic when it gets marked as completed. It's also possible to restock the qty set in the creditnote.
+
+### Added
+
+* New `CreditNoteEvent` which fires after an Creditnote is marked as completed.
+* New `RestockEvent` which fires before the restock function is run. It's an cancellable event.
+
 ## 1.0.27 - 2021-08-09
 
 ### Added

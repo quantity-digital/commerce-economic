@@ -1,0 +1,61 @@
+{% import "_includes/forms" as forms %}
+
+<div class="flex-fields">
+
+	<div class="field width-50">
+		<div>
+			{{ forms.lightswitchField({
+			label: "Auto book creditnotes"|t,
+			id: 'autoBookCreditnote',
+			name: 'autoBookCreditnote',
+			instructions: "If checked, the created creditnote draft will automaticly be booked"|t('commerce-economic'),
+			value: 1,
+			errors: settings.getErrors('autoBookCreditnote'),
+			on: (settings.autoBookCreditnote is defined) ? settings.autoBookCreditnote : 0,
+		}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.selectField({
+				first: true,
+				label: 'Creditnote layout'|t('commerce-economic'),
+				instructions: 'What layout should be usen when creating creditnotes'|t('commerce-economic'),
+				id: 'creditnoteLayoutNumber',
+				name: 'creditnoteLayoutNumber',
+				options : layouts,
+				value : settings.creditnoteLayoutNumber,
+				errors: settings.getErrors('creditnoteLayoutNumber') ?? null,
+				required: true,
+			}) }}
+		</div>
+	</div>
+	<h2>Credit note e-mail</h2>
+	<div class="field width-50">
+		<div class="heading">
+			<label>E-mail template</label>
+		</div>
+		<div class="instructions">
+			<p>What template should be use to send out credit notes</p>
+		</div>
+		{% include "_includes/forms/autosuggest" with {
+			name: 'creditnoteEmailTemplate',
+			suggestions: craft.cp.getTemplateSuggestions(),
+			value: settings.creditnoteEmailTemplate
+		} only %}
+	</div>
+
+	<div class="field width-50">
+		{{ forms.autosuggestField({
+		label: "E-mail subject"|t('commerce-economic'),
+		id: 'creditnoteEmailSubject',
+		class: 'ltr',
+		name: 'creditnoteEmailSubject',
+		suggestEnvVars: true,
+		value: settings.creditnoteEmailSubject,
+		errors: settings.getErrors('creditnoteEmailSubject'),
+		required: true,
+	}) }}
+	</div>
+</div>

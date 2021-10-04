@@ -1,5 +1,9 @@
 <?php
 
 return [
-    'Default paymentterm' => 'Standard betalingsbetingelser'
+	'Default paymentterm' => 'Standard betalingsbetingelser',
+
+	//Creditnote
+	'invoice' => 'faktura',
+	'creditnote' => 'Kreditnota'
 ];

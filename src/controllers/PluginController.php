@@ -99,12 +99,16 @@ class PluginController extends Controller
 		$setting->invoiceOnStatusId = isset($settings['invoiceOnStatusId']) ? $settings['invoiceOnStatusId'] : null;
 		$setting->autoBookInvoice = isset($settings['autoBookInvoice']) ? $settings['autoBookInvoice'] : false;
 		$setting->invoiceLayoutNumber = isset($settings['invoiceLayoutNumber']) ? $settings['invoiceLayoutNumber'] : null;
+		$setting->autoBookCreditnote = isset($settings['autoBookCreditnote']) ? $settings['autoBookCreditnote'] : false;
+		$setting->creditnoteLayoutNumber = isset($settings['creditnoteLayoutNumber']) ? $settings['creditnoteLayoutNumber'] : null;
 		$setting->gatewayPaymentTerms = $settings['gatewayPaymentTerms'] ? Json::encode($settings['gatewayPaymentTerms']) : '{}';
 		$setting->shippingProductnumbers = $settings['shippingProductnumbers'] ? Json::encode($settings['shippingProductnumbers']) : '{}';
 		$setting->vatZones = $settings['vatZones'] ? Json::encode($settings['vatZones']) : '{}';
 		$setting->syncVariants = isset($settings['syncVariants']) ? $settings['syncVariants'] : false;
 		$setting->onlyB2b = isset($settings['onlyB2b']) ? $settings['onlyB2b'] : false;
 		$setting->discountProductnumber = isset($settings['discountProductnumber']) ? $settings['discountProductnumber'] : null;
+		$setting->creditnoteEmailTemplate = isset($settings['creditnoteEmailTemplate']) ? $settings['creditnoteEmailTemplate'] : null;
+		$setting->creditnoteEmailSubject = isset($settings['creditnoteEmailSubject']) ? $settings['creditnoteEmailSubject'] : null;
 
 		if (!Craft::$app->getElements()->saveElement($setting)) {
 			exit('Failed to save');

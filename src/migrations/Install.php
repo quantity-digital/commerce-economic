@@ -65,6 +65,12 @@ class Install extends Migration
 			'invoiceOnStatusId' => $this->string()->null(),
 			'autoBookInvoice' => $this->boolean(),
 			'invoiceLayoutNumber' => $this->string()->null(),
+
+			'autoBookCreditnote' => $this->boolean(),
+			'creditnoteLayoutNumber' => $this->string()->null(),
+			'creditnoteEmailTemplate' => $this->string()->null(),
+			'creditnoteEmailSubject' => $this->string()->null(),
+
 			'gatewayPaymentTerms' => $this->json()->null(),
 			'shippingProductnumbers' => $this->json()->null(),
 			'discountProductnumber' => $this->string()->null(),
@@ -76,6 +82,40 @@ class Install extends Migration
 			'dateUpdated' => $this->dateTime()->notNull(),
 			'PRIMARY KEY([[id]])',
 		]);
+
+		$this->createTable(
+			Table::CREDITNOTES,
+			[
+				'id' => $this->primaryKey(),
+				'orderId' => $this->integer(), //Commerce order
+				'draftInvoiceNumber' => $this->string(), //E-conomic ID
+				'invoiceNumber' => $this->string(), //Crednote number assigned in e-conomic
+				'sent' => $this->boolean()->defaultValue(false), //Is it sent to the customer
+				'restock' => $this->boolean()->defaultValue(false),
+				'isCompleted' => $this->boolean(),
+				'dateSent' => $this->dateTime(),
+				'dateCreated' => $this->dateTime()->notNull(),
+				'dateUpdated' => $this->dateTime()->notNull(),
+				'uid' => $this->uid(),
+			]
+		);
+
+		$this->createTable(
+			Table::CREDITNOTES_ROWS,
+			[
+				'id' => $this->primaryKey(),
+				'creditnoteId' => $this->integer(),
+				'lineItemId' => $this->integer(),
+				'qty' => $this->integer(),
+				'available' => $this->integer(),
+				'description' => $this->string(),
+				'sku' => $this->string(),
+				'price' => $this->decimal(14, 4)->notNull(),
+				'dateCreated' => $this->dateTime()->notNull(),
+				'dateUpdated' => $this->dateTime()->notNull(),
+				'uid' => $this->uid()
+			]
+		);
 	}
 
 	protected function createIndexes()
@@ -86,12 +126,19 @@ class Install extends Migration
 	protected function addForeignKeys()
 	{
 		$this->addForeignKey(null, Table::ORDERINFO, ['id'], CommerceTable::ORDERS, ['id'], 'CASCADE', 'CASCADE');
+
+		$this->addForeignKey(null, Table::CREDITNOTES, 'id', '{{%elements}}', 'id');
+		$this->addForeignKey(null, Table::CREDITNOTES, 'orderId', CommerceTable::ORDERS, 'id',);
+		$this->addForeignKey(null, Table::CREDITNOTES_ROWS, 'creditnoteId', Table::CREDITNOTES, 'id');
+		$this->addForeignKey(null, Table::CREDITNOTES_ROWS, 'lineItemId', CommerceTable::LINEITEMS, ['id'], null, null);
 	}
 
 	protected function dropForeignKeys()
 	{
 		if ($this->db->tableExists(Table::ORDERINFO)) {
 			MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERINFO, $this);
+			MigrationHelper::dropAllForeignKeysOnTable(Table::CREDITNOTES, $this);
+			MigrationHelper::dropAllForeignKeysOnTable(Table::CREDITNOTES_ROWS, $this);
 		}
 	}
 
@@ -99,5 +146,7 @@ class Install extends Migration
 	{
 		$this->dropTableIfExists(Table::ORDERINFO);
 		$this->dropTableIfExists(Table::SETTINGS);
+		$this->dropTableIfExists(Table::CREDITNOTES);
+		$this->dropTableIfExists(Table::CREDITNOTES_ROWS);
 	}
 }
