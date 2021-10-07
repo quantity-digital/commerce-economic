@@ -13,6 +13,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use QD\commerce\economic\helpers\Log;
 use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\models\Settings;
+use verbb\giftvoucher\elements\Voucher;
 
 class Orders extends Component
 {
@@ -140,6 +141,20 @@ class Orders extends Component
 
 		//Loop thru each order adjustments
 		foreach ($adjustments as $adjustment) {
+			if ($adjustment->type === 'voucher' && \class_exists('verbb\giftvoucher\elements\Voucher')) {
+				$snapshot = $adjustment->sourceSnapshot;
+				$voucher = Voucher::find()->id($snapshot['voucherId']);
+
+				$lines[] = [
+					"product" => [
+						"productNumber" => $voucher->sku
+					],
+					"description" => $adjustment->name . ' - ' . $snapshot['codeKey'],
+					"quantity" => 1,
+					"unitNetPrice" => $adjustment->amount,
+				];
+			}
+
 			if ($adjustment->type === 'shipping' && $shippingProductNumber) {
 				$unitPrice = $adjustment->amount / ($vatDecimal + 1);
 				$lines[] = [

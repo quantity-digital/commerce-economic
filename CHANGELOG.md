@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.1 - 2021-10-07
+
+### Added
+
+* Added support for [verbb/giftvoucher](https://github.com/verbb/gift-voucherhttps://) in adjustments
+
 ## 1.1.0 - 2021-10-04
 
 ### New feature
