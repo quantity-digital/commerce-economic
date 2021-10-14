@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.2 - 2021-10-14
+
+### Added
+
+* Plugin can now create orders and quotes in e-conomic. This isn't automatic, and you have to manually trigger the two Queue jobs. Integration is made via their SOAP-api beucase orders and quotes won't work with REST-api if inventory module is enabled in e-conomic.
+
 ## 1.1.1 - 2021-10-07
 
 ### Added

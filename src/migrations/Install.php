@@ -42,8 +42,12 @@ class Install extends Migration
 	{
 		$this->createTable(Table::ORDERINFO, [
 			'id' => $this->integer()->notNull(),
+
+			//Invoices
 			'invoiceNumber' => $this->integer()->null(),
 			'draftInvoiceNumber' => $this->integer()->null(),
+
+			//Ean payment
 			'eanNumber' => $this->string()->null(),
 			'eanReference' => $this->string()->null(),
 			'eanContact' => $this->string()->null(),
@@ -70,21 +74,11 @@ class Install extends Migration
 			'autoBookInvoice' => $this->boolean(),
 			'invoiceLayoutNumber' => $this->string()->null(),
 
-
+			//Creditnote
 			'autoBookCreditnote' => $this->boolean(),
 			'creditnoteLayoutNumber' => $this->string()->null(),
 			'creditnoteEmailTemplate' => $this->string()->null(),
 			'creditnoteEmailSubject' => $this->string()->null(),
-
-			//Quotations settings
-			'quotationsEnabled' => $this->boolean(),
-			'quoteOnStatusId' => $this->string(),
-			'statusIdAfterQuotation' => $this->string(),
-
-			//Orders settings
-			'ordersEnabled' => $this->boolean(),
-			'orderOnStatusId' => $this->string(),
-			'statusIdAfterOrder' => $this->string(),
 
 			//Relations
 			'gatewayPaymentTerms' => $this->json()->null(),

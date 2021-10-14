@@ -203,14 +203,7 @@ class Economic extends \craft\base\Plugin
 			return Craft::$app->view->renderTemplate('commerce-economic/order/details', $context);
 		});
 
-
-
-
-		if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
-			// Ads job to queue when variant is save for product syncing
-			Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
-		}
-
+		//Add creditnote menu
 		Event::on(
 			Cp::class,
 			Cp::EVENT_REGISTER_CP_NAV_ITEMS,
@@ -237,14 +230,6 @@ class Economic extends \craft\base\Plugin
 				$event->navItems[$menuKey] = $commerceNav;
 			}
 		);
-
-		//Disabled due to high serverload
-		// if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
-		// 	// Ads job to queue when variant is save for product syncing
-		// 	// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
-		// 	Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
-		// }
-
 	}
 
 	protected function registerFieldTypes()
@@ -262,6 +247,7 @@ class Economic extends \craft\base\Plugin
 	{
 		Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function (RegisterComponentTypesEvent $e) {
 			$e->types[] = Setting::class;
+			$e->types[] = Creditnote::class;
 		});
 	}
 }

@@ -26,8 +26,7 @@
 	"require": {
 		"craftcms/cms": "^3.5",
 		"craftcms/commerce": "^3.2",
-		"lenius/economic-php-client": "^2.0",
-		"tkj/economics": "^2.0"
+		"lenius/economic-php-client": "^2.0"
 	},
 	"require-dev": {
 		"roave/security-advisories": "dev-master"

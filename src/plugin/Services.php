@@ -6,10 +6,12 @@ use QD\commerce\economic\services\Api;
 use QD\commerce\economic\services\CreditnoteRows;
 use QD\commerce\economic\services\Creditnotes;
 use QD\commerce\economic\services\Customers;
+use QD\commerce\economic\services\economic\Orders as EconomicOrders;
 use QD\commerce\economic\services\Emails;
 use QD\commerce\economic\services\Invoices;
 use QD\commerce\economic\services\Orders;
 use QD\commerce\economic\services\Plugin;
+use QD\commerce\economic\services\Quotations;
 use QD\commerce\economic\services\SoapApi;
 use QD\commerce\economic\services\Variants;
 
@@ -27,7 +29,6 @@ trait Services
 			'plugin' => Plugin::class,
 			'creditnotes' => Creditnotes::class,
 			'creditnoteRows' => CreditnoteRows::class,
-			'soapapi' => SoapApi::class
 		]);
 	}
 
@@ -74,10 +75,5 @@ trait Services
 	public function getCreditnoteRows()
 	{
 		return $this->get('creditnoteRows');
-	}
-
-	public function getSoapApi()
-	{
-		return $this->get('soapapi');
 	}
 }
