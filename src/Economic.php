@@ -190,6 +190,7 @@ class Economic extends \craft\base\Plugin
 			]);
 		});
 
+
 		Craft::$app->view->hook('cp.commerce.order.edit.order-secondary-actions', function (&$context) {
 			return Craft::$app->view->renderTemplate('commerce-economic/order/secondary-actions', $context);
 		});
@@ -223,13 +224,6 @@ class Economic extends \craft\base\Plugin
 					}
 				}
 
-				$navItem[] = [
-					'url' => 'comtec',
-					'label' => 'Customers',
-					'icon' => '@QD/customers/resources/icons/comtec.svg',
-					'subnav' => [],
-				];
-
 				$commerceNav = $event->navItems[$menuKey];
 
 				$navItem = ['creditnotes' => ['label' => 'Credit notes', 'url' => 'commerce/creditnotes']];
@@ -243,6 +237,14 @@ class Economic extends \craft\base\Plugin
 				$event->navItems[$menuKey] = $commerceNav;
 			}
 		);
+
+		//Disabled due to high serverload
+		// if ($this->getEconomicSettings() && $this->getEconomicSettings()->syncVariants) {
+		// 	// Ads job to queue when variant is save for product syncing
+		// 	// Event::on(Variant::class, Variant::EVENT_BEFORE_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
+		// 	Event::on(Variant::class, Variant::EVENT_AFTER_SAVE, [$this->getVariants(), 'addSyncVariantJob']);
+		// }
+
 	}
 
 	protected function registerFieldTypes()
