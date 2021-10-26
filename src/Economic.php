@@ -73,6 +73,7 @@ class Economic extends \craft\base\Plugin
 		$this->registerFieldTypes();
 		$this->registerElementTypes();
 		$this->registerCpRoutes();
+		$this->registerSiteRoutes();
 
 		Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function (PluginEvent $event) {
 			if ($event->plugin === $this) {

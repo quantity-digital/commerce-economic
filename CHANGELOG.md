@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.3 - 2021-10-26
+
+### Adjusted
+
+* Adjusted `QD\commerce\economic\services\Orders::getOrderLines()` to calculate rate based on applied taxrates.
+
 ## 1.1.2 - 2021-10-14
 
 ### Added
@@ -155,3 +161,4 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
+

@@ -13,6 +13,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use QD\commerce\economic\helpers\Log;
 use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\models\Settings;
+use craft\commerce\records\TaxRate;
 use verbb\giftvoucher\elements\Voucher;
 
 class Orders extends Component
@@ -74,41 +75,34 @@ class Orders extends Component
 	 */
 	public function getOrderLines(Order $order)
 	{
+		$taxrate = $this->getTaxRatesForOrder($order);
+		$lineVat = 0;
+		$shippingVat = null;
+
+		if ($taxrate['taxable'] === TaxRate::TAXABLE_ORDER_TOTAL_SHIPPING && $taxrate['include']) {
+			$shippingVat = $taxrate['rate'];
+		}
+
+		if ($taxrate['taxable'] === TaxRate::TAXABLE_ORDER_TOTAL_PRICE && $taxrate['include']) {
+			$shippingVat = $taxrate['rate'];
+			$lineVat = $taxrate['rate'];
+		}
+
 		$orderLines = $order->getLineItems();
 		$lines = [];
 		$productValue = 0;
 
 		//Add order line items
 		foreach ($orderLines as $orderLine) {
-			$price = $orderLine->salePrice;
-			$vatDecimal = 0.25;
+			$subtotal = $orderLine->getSubtotal();
+			$includedTax = $orderLine->getTaxIncluded();
 
-			$adjustments = $orderLine->getAdjustments();
+			$linePrice = ($subtotal - $includedTax);
+			$unitPrice = ($linePrice / $orderLine->qty) / ($lineVat + 1);
 
-			foreach ($adjustments as $adjustment) {
-				if ($adjustment->included && $adjustment->type !== 'tax') {
-					continue;
-				}
-
-				if (!$adjustment->included && $adjustment->type === 'tax') {
-					continue;
-				}
-
-				if ($adjustment->included && $adjustment->type === 'tax' && $orderLine->salePrice > 0) {
-					$vatDecimal = $adjustment->amount / (($orderLine->salePrice * $orderLine->qty) - $adjustment->amount);
-					$price -= ($adjustment->amount / $orderLine->qty);
-					continue;
-				}
-
-				if ($adjustment->amount < 0) {
-					$price += ($adjustment->amount / $orderLine->qty);
-					continue;
-				}
-
-				if ($adjustment->amount > 0) {
-					$price += ($adjustment->amount / $orderLine->qty);
-					continue;
-				}
+			//Fallback in case not VAT rule is defined for shipping, asumin same as product VAT
+			if ($includedTax && $shippingVat === null) {
+				$shippingVat = $includedTax / $linePrice;
 			}
 
 			$lines[] = [
@@ -117,14 +111,14 @@ class Orders extends Component
 				],
 				"description" => $orderLine->description,
 				"quantity" => $orderLine->qty,
-				"unitNetPrice" => $price,
+				"unitNetPrice" => round($unitPrice, 2),
 			];
 
 			//Save total product value
-			$productValue += $orderLine->qty * $price;
+			$productValue += $linePrice;
 		}
 
-		//Add shipping line items
+		//Handle order adjustments
 		$adjustments = $order->getAdjustments();
 		$shippingRelations = Json::decode(Economic::getInstance()->getEconomicSettings()->shippingProductnumbers);
 		$shippingProductNumber = null;
@@ -133,6 +127,7 @@ class Orders extends Component
 		$totalDiscount = 0;
 		$shippingPrice = 0;
 
+		//Get shipping method product number
 		foreach ($shippingRelations as $shippingRelation) {
 			if ($shippingRelation[0] == $order->getShippingMethod()->id) {
 				$shippingProductNumber = $shippingRelation[1];
@@ -141,6 +136,7 @@ class Orders extends Component
 
 		//Loop thru each order adjustments
 		foreach ($adjustments as $adjustment) {
+
 			if ($adjustment->type === 'voucher' && \class_exists('verbb\giftvoucher\elements\Voucher')) {
 				$snapshot = $adjustment->sourceSnapshot;
 				$voucher = Voucher::find()->id($snapshot['voucherId']);
@@ -151,26 +147,26 @@ class Orders extends Component
 					],
 					"description" => $adjustment->name . ' - ' . $snapshot['codeKey'],
 					"quantity" => 1,
-					"unitNetPrice" => $adjustment->amount,
+					"unitNetPrice" => round($adjustment->amount, 2),
 				];
 			}
 
 			if ($adjustment->type === 'shipping' && $shippingProductNumber) {
-				$unitPrice = $adjustment->amount / ($vatDecimal + 1);
+				$unitPrice = $adjustment->amount / ($shippingVat + 1);
 				$lines[] = [
 					"product" => [
 						"productNumber" => $shippingProductNumber
 					],
 					"description" => 'Shipping - ' . $adjustment->name,
 					"quantity" => 1,
-					"unitNetPrice" => $unitPrice,
+					"unitNetPrice" => round($unitPrice, 2),
 				];
 
 				$shippingPrice += $unitPrice;
 			}
 
 			if ($adjustment->type === 'discount' && $discountProductnumber && !$adjustment->lineItemId) {
-				$discount = $adjustment->amount / ($vatDecimal + 1);
+				$discount = $adjustment->amount / ($lineVat + 1);
 
 				//If we dont allow negativ order totals, check if discount is greater than remaining total
 				if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
@@ -192,7 +188,7 @@ class Orders extends Component
 					],
 					"description" => $adjustment->name,
 					"quantity" => 1,
-					"unitNetPrice" => $discount,
+					"unitNetPrice" => round($discount, 2),
 				];
 
 				//Update total applied discount

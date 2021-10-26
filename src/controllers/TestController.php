@@ -33,15 +33,15 @@ use QD\commerce\economic\records\CreditnoteRowRecord;
 class TestController extends Controller
 {
 
-	public function actionQuote()
+	public function actionTest()
 	{
-		// $order = Order::find()->id(81)->one();
+		$order = Order::find()->id(84)->one();
 
-		// $response = Economic::getInstance()->getEconomicOrders()->createOrderFromOrder($order);
+		$response = Economic::getInstance()->getOrders()->getOrderLines($order);
 
-		// echo '<pre>';
-		// print_r($response->OrderData->Number);
-		// echo '</pre>';
-		// die;
+		echo '<pre>';
+		print_r($response);
+		echo '</pre>';
+		die;
 	}
 }
