@@ -48,7 +48,7 @@ class CreditnoteRows extends Component
 					}
 
 					if ($adjustment->included && $adjustment->type === 'tax') {
-						$vatDecimal = $adjustment->amount / (($lineItem->salePrice * $lineItem->qty) - $adjustment->amount);
+						$vatDecimal = round($adjustment->amount / ($lineItem->total - $adjustment->amount), 2);
 						continue;
 					}
 				}
@@ -60,7 +60,7 @@ class CreditnoteRows extends Component
 				],
 				"description" => $row->description,
 				"quantity" => -$row->qty,
-				"unitNetPrice" => (float)($row->price / ($vatDecimal + 1)),
+				"unitNetPrice" => round((float)($row->price / ($vatDecimal + 1)), 2),
 			];
 		}
 

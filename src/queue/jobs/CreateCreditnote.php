@@ -53,7 +53,7 @@ class CreateCreditnote extends BaseJob
 			$this->setProgress($queue, 0.5);
 
 			if (!$response) {
-				Log::error('Create request failed on order with id ' . $this->orderId);
+				Log::error('Create request failed on creditnote with id ' . $this->creditnoteId);
 				$this->reAddToQueue();
 				$this->setProgress($queue, 1);
 				return;

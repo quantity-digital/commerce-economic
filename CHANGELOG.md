@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.4 - 2021-11-12
+
+### Fixed
+
+* Fixed error in creditnote calculation
+
 ## 1.1.3 - 2021-10-26
 
 ### Adjusted
@@ -161,4 +167,3 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
-
