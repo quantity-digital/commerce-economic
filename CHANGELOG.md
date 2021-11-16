@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.6 - 2021-11-15
+
+### Added
+
+* Its now possible to map checkout countries to specific customer groups
+
 ## 1.1.5 - 2021-11-15
 
 ### Changed
