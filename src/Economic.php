@@ -46,7 +46,7 @@ class Economic extends \craft\base\Plugin
 	/**
 	 * @inheritDoc
 	 */
-	public $schemaVersion = '1.1.0';
+	public $schemaVersion = '1.1.1';
 	public $hasCpSettings = false;
 	public $hasCpSection = true;
 

@@ -85,6 +85,7 @@ class Install extends Migration
 			'shippingProductnumbers' => $this->json()->null(),
 			'discountProductnumber' => $this->string()->null(),
 			'vatZones' => $this->json()->null(),
+			'customerGroups' => $this->json()->null(),
 			'syncVariants' => $this->boolean()->null(),
 			'convertAmount' => $this->boolean()->null(),
 

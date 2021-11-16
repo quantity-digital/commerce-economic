@@ -41,6 +41,7 @@ class Setting extends Element
 	public $vatZones;
 	public $shippingProductnumbers;
 	public $discountProductnumber;
+	public $customerGroups;
 
 	// Sync settings
 	public $syncVariants = false;
@@ -91,6 +92,7 @@ class Setting extends Element
 		$record->shippingProductnumbers = $this->shippingProductnumbers;
 		$record->discountProductnumber = $this->discountProductnumber;
 		$record->vatZones = $this->vatZones;
+		$record->customerGroups = $this->customerGroups;
 		$record->onlyB2b = $this->onlyB2b;
 		$record->syncVariants = $this->syncVariants;
 		$record->convertAmount = $this->convertAmount;

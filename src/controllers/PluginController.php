@@ -53,6 +53,14 @@ class PluginController extends Controller
 			];
 		}
 
+		$enabledCountries = [];
+		foreach (CommercePlugin::getInstance()->getCountries()->getAllEnabledCountries() as $country) {
+			$enabledCountries[] = [
+				'value' => $country->id,
+				'label' => $country->name
+			];
+		}
+
 		$paymentTerms = $this->getPaymentTerms();
 		$layouts = $this->getLayouts();
 		$vatZones = $this->getVatZones();
@@ -69,9 +77,10 @@ class PluginController extends Controller
 			'vatZones' => $vatZones,
 			'customerGroups' => $customerGroups,
 			'gateways' => $gateways,
-			'taxrastes' => $taxrates,
+			'taxrates' => $taxrates,
 			'productGroups' => $productGroups,
-			'shippingmethods' => $shippingMethods
+			'shippingmethods' => $shippingMethods,
+			'enabledCountries' => $enabledCountries
 		]);
 	}
 
@@ -104,6 +113,7 @@ class PluginController extends Controller
 		$setting->gatewayPaymentTerms = $settings['gatewayPaymentTerms'] ? Json::encode($settings['gatewayPaymentTerms']) : '{}';
 		$setting->shippingProductnumbers = $settings['shippingProductnumbers'] ? Json::encode($settings['shippingProductnumbers']) : '{}';
 		$setting->vatZones = $settings['vatZones'] ? Json::encode($settings['vatZones']) : '{}';
+		$setting->customerGroups = $settings['customerGroups'] ? Json::encode($settings['customerGroups']) : '{}';
 		$setting->syncVariants = isset($settings['syncVariants']) ? $settings['syncVariants'] : false;
 		$setting->onlyB2b = isset($settings['onlyB2b']) ? $settings['onlyB2b'] : false;
 		$setting->discountProductnumber = isset($settings['discountProductnumber']) ? $settings['discountProductnumber'] : null;

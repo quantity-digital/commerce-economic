@@ -43,7 +43,7 @@
 					{
 						heading : 'Tax rates',
 						type: 'select',
-						options: taxrastes
+						options: taxrates
 					},
 					{
 						heading : 'VAT Zones',
@@ -52,6 +52,30 @@
 					},
 				],
 				rows: settings.vatZones|json_decode
+			}) }}
+		</div>
+	</div>
+
+	<div class="field width-50">
+		<div>
+			{{ forms.editableTableField({
+				label: 'Customer group setup',
+				instructions: "Link checkout billing countries to customer groupes. If no match is found, default is used",
+				id: 'customerGroups',
+				name: 'customerGroups',
+				cols: [
+					{
+						heading : 'Country',
+						type: 'select',
+						options: enabledCountries
+					},
+					{
+						heading : 'Customer group',
+						type: 'select',
+						options: customerGroups
+					},
+				],
+				rows: settings.customerGroups|json_decode
 			}) }}
 		</div>
 	</div>
@@ -90,5 +114,6 @@
 			}) }}
 		</div>
 	</div>
+
 </div>
 <hr>

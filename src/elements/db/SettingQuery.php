@@ -40,6 +40,7 @@ class SettingQuery extends ElementQuery
 			'economic_settings.creditnoteEmailSubject',
 			'economic_settings.gatewayPaymentTerms',
 			'economic_settings.vatZones',
+			'economic_settings.customerGroups',
 			'economic_settings.syncVariants',
 			'economic_settings.onlyB2b',
 			'economic_settings.convertAmount',
