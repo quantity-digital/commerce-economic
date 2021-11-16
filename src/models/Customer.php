@@ -27,15 +27,20 @@ class Customer extends Model
 	{
 		$billingAddress = $order->getBillingAddress();
 		$customerData = null;
+		$businessTaxId = $billingAddress->businessTaxId;
+
+		if ($businessTaxId) {
+			$businessTaxId = Economic::getInstance()->getCustomers()->validateTaxId($businessTaxId);
+		}
 
 		//Check for business customer
-		$response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($billingAddress->businessTaxId);
+		$response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($businessTaxId);
 		if ($response && isset($response->asObject()->collection[0])) {
 			$customerData = $response->asObject()->collection[0];
 		}
 
 		//Check for private customer
-		if (!$customerData && !$billingAddress->businessTaxId) {
+		if (!$customerData && !$businessTaxId) {
 			$response = Economic::getInstance()->getCustomers()->getCustomerByEmail($order->email);
 			if ($response && isset($response->asObject()->collection[0])) {
 				$customerData = $response->asObject()->collection[0];

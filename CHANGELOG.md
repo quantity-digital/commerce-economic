@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.5 - 2021-11-15
+
+### Changed
+
+* Plugin now validates the VAT-number to filter out any country codes that is prepended it. This is because E-conomic will prepend the VAT-number automaticly with the country code of the selected customer.
+
 ## 1.1.4 - 2021-11-12
 
 ### Fixed
