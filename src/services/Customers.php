@@ -73,14 +73,14 @@ class Customers extends Component
 	{
 		$billingAddress = $order->getBillingAddress();
 
-		$businessTaxId = ($order->getBillingAddress()->businessTaxId) ?: '';
+		$businessTaxId = ($billingAddress->businessTaxId) ?: '';
 		if ($businessTaxId) {
 			$businessTaxId = $this->validateTaxId($businessTaxId);
 		}
 
 		$customer = new Customer();
 		$customer->currency = $order->paymentCurrency;
-		$customer->customerGroup = new CustomerGroup();
+		$customer->customerGroup = new CustomerGroup($billingAddress->countryId ? $billingAddress->countryId : null);
 		$customer->name = ($billingAddress->businessName) ? $billingAddress->businessName : (($billingAddress->fullName) ? $billingAddress->fullName : $billingAddress->firstName . ' ' . $billingAddress->lastName);
 		$customer->address = $billingAddress->address1;
 		$customer->city = $billingAddress->city;
