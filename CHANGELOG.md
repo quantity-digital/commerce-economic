@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.8 - 2021-12-20
+
+### Fixed
+
+Undo v. 1.1.5 changes, because if we remove the country code, we can't verify customers in multi country B2B integration because country field in e-conomic is a text field. E-conomic has been been notified about the consequences of the automated country code to the REST-api - [https://forum.e-conomic.dk/37762/kunders-landefelt-skal-ikke-vaere-fri-tekst](https://forum.e-conomic.dk/37762/kunders-landefelt-skal-ikke-vaere-fri-tekst)
+
+## 1.1.7 - 2021-12-02
+
+### Fixed
+
+* Fixed bug in `QD\commerce\economic\models\CustomerGroup` where it would fail if a customer group wasn't a match
+
 ## 1.1.6 - 2021-11-15
 
 ### Added
@@ -179,3 +191,4 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
+

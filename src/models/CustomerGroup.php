@@ -27,7 +27,7 @@ class CustomerGroup extends Model
 			}
 		}
 
-		if (!$countryId) {
+		if (!$customerGroupNumber) {
 			//Default value is from the plugin settings
 			$customerGroupNumber = Economic::getInstance()->getEconomicSettings()->defaultCustomerGroup;
 		}

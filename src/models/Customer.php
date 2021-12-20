@@ -29,9 +29,9 @@ class Customer extends Model
 		$customerData = null;
 		$businessTaxId = $billingAddress->businessTaxId;
 
-		if ($businessTaxId) {
-			$businessTaxId = Economic::getInstance()->getCustomers()->validateTaxId($businessTaxId);
-		}
+		// if ($businessTaxId) {
+		// 	$businessTaxId = Economic::getInstance()->getCustomers()->validateTaxId($businessTaxId);
+		// }
 
 		//Check for business customer
 		$response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($businessTaxId);
@@ -67,11 +67,11 @@ class Customer extends Model
 		$customer->customerGroup  = CustomerGroup::transform($object->customerGroup);
 		$customer->paymentTerms  = PaymentTerms::transform($object->paymentTerms);
 		$customer->corporateIdentificationNumber  = isset($object->corporateIdentificationNumber) ? $object->corporateIdentificationNumber : '';
-		$customer->address  = $object->address;
-		$customer->country  = $object->country;
-		$customer->city  = $object->city;
-		$customer->zip  = $object->zip;
-		$customer->telephoneAndFaxNumber  = $object->telephoneAndFaxNumber;
+		$customer->address  = isset($object->address) ? $object->address : '';
+		$customer->country  = isset($object->country) ? $object->country : '';
+		$customer->city  = isset($object->city) ? $object->city : '';
+		$customer->zip  = isset($object->zip) ? $object->zip : '';
+		$customer->telephoneAndFaxNumber  = isset($object->telephoneAndFaxNumber) ? $object->telephoneAndFaxNumber : '';
 
 		if (isset($object->email)) {
 			$customer->email = $object->email;

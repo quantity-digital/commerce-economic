@@ -74,9 +74,9 @@ class Customers extends Component
 		$billingAddress = $order->getBillingAddress();
 
 		$businessTaxId = ($billingAddress->businessTaxId) ?: '';
-		if ($businessTaxId) {
-			$businessTaxId = $this->validateTaxId($businessTaxId);
-		}
+		// if ($businessTaxId) {
+		// 	$businessTaxId = $this->validateTaxId($businessTaxId);
+		// }
 
 		$customer = new Customer();
 		$customer->currency = $order->paymentCurrency;
@@ -119,23 +119,23 @@ class Customers extends Component
 		return false;
 	}
 
-	public function validateTaxId($businessTaxId)
-	{
-		//Remove whitespaces etc.
-		$businessTaxId = preg_replace('/\s+/', '', $businessTaxId);
+	// public function validateTaxId($businessTaxId)
+	// {
+	// 	//Remove whitespaces etc.
+	// 	$businessTaxId = preg_replace('/\s+/', '', $businessTaxId);
 
-		//First letter is digit, valid number
-		if (ctype_digit($businessTaxId[0])) {
-			return $businessTaxId;
-		}
+	// 	//First letter is digit, valid number
+	// 	if (ctype_digit($businessTaxId[0])) {
+	// 		return $businessTaxId;
+	// 	}
 
-		//If second is digit, its valid. Either Austria, or spain
-		if (ctype_digit($businessTaxId[1])) {
-			return $businessTaxId;
-		}
+	// 	//If second is digit, its valid. Either Austria, or spain
+	// 	if (ctype_digit($businessTaxId[1])) {
+	// 		return $businessTaxId;
+	// 	}
 
-		//Both first and second character is alpha, remove then
+	// 	//Both first and second character is alpha, remove then
 
-		return substr($businessTaxId, 2);
-	}
+	// 	return substr($businessTaxId, 2);
+	// }
 }
