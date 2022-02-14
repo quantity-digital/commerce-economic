@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.9 - 2022-02-14
+
+### Fixed
+
+* Fixed creditnotes not skipping line with 0 qty
+
 ## 1.1.8 - 2021-12-20
 
 ### Fixed

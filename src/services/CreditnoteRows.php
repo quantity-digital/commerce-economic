@@ -29,6 +29,10 @@ class CreditnoteRows extends Component
 		$vatDecimal = 0;
 		foreach ($creditRows as $row) {
 
+			//If no quantity has been set, skip line for the creditnote
+			if (!$row->qty || $row->qty < 1) {
+				continue;
+			}
 
 			if ($row->lineItemId) {
 
