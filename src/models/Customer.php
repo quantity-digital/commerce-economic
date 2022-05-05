@@ -27,7 +27,7 @@ class Customer extends Model
 	{
 		$billingAddress = $order->getBillingAddress();
 		$customerData = null;
-		$businessTaxId = $billingAddress->businessTaxId;
+		$businessTaxId = str_replace(' ', '', $billingAddress->businessTaxId);
 
 		// if ($businessTaxId) {
 		// 	$businessTaxId = Economic::getInstance()->getCustomers()->validateTaxId($businessTaxId);

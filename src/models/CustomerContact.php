@@ -15,7 +15,8 @@ class CustomerContact extends Model
     public static function transformFromOrder($order)
     {
         //Check for business customer
-        $response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber($billingAddress->businessTaxId);
+        $response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber(str_replace(' ', '', $billingAddress->businessTaxId));
+);
 
         if ($response && isset($response->asObject()->collection[0])) {
             $customerData = $response->asObject()->collection[0];

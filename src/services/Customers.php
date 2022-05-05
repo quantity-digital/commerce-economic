@@ -73,7 +73,7 @@ class Customers extends Component
 	{
 		$billingAddress = $order->getBillingAddress();
 
-		$businessTaxId = ($billingAddress->businessTaxId) ?: '';
+		$businessTaxId = (str_replace(' ', '', $billingAddress->businessTaxId)) ?: '';
 		// if ($businessTaxId) {
 		// 	$businessTaxId = $this->validateTaxId($businessTaxId);
 		// }
