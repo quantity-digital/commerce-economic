@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.10 - 2022-05-05
+
+### Fixed
+
+* Fixed a bug where shipping orderline could be calculated wrong, of order only consist of shipping
+* Fixed a bug where discount on orderlines could be missed
+
 ## 1.1.9 - 2022-02-14
 
 ### Fixed
@@ -197,4 +204,3 @@ Settings is now stored in database instead of the project config
 ## 1.0.0 - 2020-10-27
 
 Initial release of the Visma E-conomic integration to the Craft Store
-
