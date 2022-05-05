@@ -88,6 +88,10 @@ class Orders extends Component
 			$lineVat = $taxrate['rate'];
 		}
 
+		if ($taxrate['taxable'] === TaxRate::TAXABLE_PRICE_SHIPPING && $taxrate['include']) {
+			$shippingVat = $taxrate['rate'];
+		}
+
 		$orderLines = $order->getLineItems();
 		$lines = [];
 		$productValue = 0;
