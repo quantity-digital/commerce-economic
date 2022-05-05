@@ -98,7 +98,7 @@ class Orders extends Component
 
 		//Add order line items
 		foreach ($orderLines as $orderLine) {
-			$subtotal = $orderLine->getSubtotal();
+			$subtotal = $orderLine->getTotal();
 			$includedTax = $orderLine->getTaxIncluded();
 
 			$linePrice = ($subtotal - $includedTax);
