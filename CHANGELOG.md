@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.11 - 2022-05-xx
+
+### Fixed
+
+* Fixed bug where invoices would fail because customer entered business tax id with spaces. Plugin now strips all spaces away.
+* Fixed a bug in `QD\commerce\economic\models\Product` where `setSalePrice` returned a int instead of float, resulting in decimal prices beeing stripped
+
 ## 1.1.10 - 2022-05-05
 
 ### Fixed
