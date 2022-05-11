@@ -88,7 +88,7 @@ class Product extends Model
 
 	public function setSalesPrice($value)
 	{
-		$this->salesPrice = (int) $value;
+		$this->salesPrice = (float) $value;
 		return $this;
 	}
 
