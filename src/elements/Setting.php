@@ -35,6 +35,7 @@ class Setting extends Element
 	public $creditnoteLayoutNumber;
 	public $creditnoteEmailTemplate;
 	public $creditnoteEmailSubject;
+	public $creditnoteNotificationEmail;
 
 	// Relations
 	public $gatewayPaymentTerms;
@@ -87,6 +88,7 @@ class Setting extends Element
 		$record->creditnoteLayoutNumber = $this->creditnoteLayoutNumber;
 		$record->creditnoteEmailTemplate = $this->creditnoteEmailTemplate;
 		$record->creditnoteEmailSubject = $this->creditnoteEmailSubject;
+		$record->creditnoteNotificationEmail = $this->creditnoteNotificationEmail;
 
 		$record->gatewayPaymentTerms = $this->gatewayPaymentTerms;
 		$record->shippingProductnumbers = $this->shippingProductnumbers;

@@ -49,12 +49,27 @@
 	<div class="field width-50">
 		{{ forms.autosuggestField({
 		label: "E-mail subject"|t('commerce-economic'),
+		instructions: "Subject of the email sent to the customer",
 		id: 'creditnoteEmailSubject',
 		class: 'ltr',
 		name: 'creditnoteEmailSubject',
 		suggestEnvVars: true,
 		value: settings.creditnoteEmailSubject,
 		errors: settings.getErrors('creditnoteEmailSubject'),
+		required: true,
+	}) }}
+	</div>
+
+	<div class="field width-50">
+		{{ forms.autosuggestField({
+		label: "Notification e-amil"|t('commerce-economic'),
+		instructions: "Notification e-mail for credit notes on ean-paid orders",
+		id: 'creditnoteNotificationEmail',
+		class: 'ltr',
+		name: 'creditnoteNotificationEmail',
+		suggestEnvVars: true,
+		value: settings.creditnoteNotificationEmail,
+		errors: settings.getErrors('creditnoteNotificationEmail'),
 		required: true,
 	}) }}
 	</div>

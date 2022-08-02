@@ -119,6 +119,7 @@ class PluginController extends Controller
 		$setting->discountProductnumber = isset($settings['discountProductnumber']) ? $settings['discountProductnumber'] : null;
 		$setting->creditnoteEmailTemplate = isset($settings['creditnoteEmailTemplate']) ? $settings['creditnoteEmailTemplate'] : null;
 		$setting->creditnoteEmailSubject = isset($settings['creditnoteEmailSubject']) ? $settings['creditnoteEmailSubject'] : null;
+		$setting->creditnoteNotificationEmail = isset($settings['creditnoteNotificationEmail']) ? $settings['creditnoteNotificationEmail'] : null;
 
 		if (!Craft::$app->getElements()->saveElement($setting)) {
 			exit('Failed to save');

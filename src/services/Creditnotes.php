@@ -10,6 +10,7 @@ use QD\commerce\economic\Economic;
 use QD\commerce\economic\elements\Creditnote;
 use QD\commerce\economic\events\ApiResponseEvent;
 use QD\commerce\economic\events\RestockEvent;
+use QD\commerce\economic\gateways\Ean;
 use QD\commerce\economic\helpers\Log;
 use QD\commerce\economic\helpers\Stock;
 use QD\commerce\economic\models\Creditnote as ModelsCreditnote;
@@ -26,6 +27,12 @@ class Creditnotes extends Component
 		$creditnote = new Creditnote();
 		$creditnote->orderId = $order->id;
 		$creditnote->isCompleted = false;
+
+		$gateway = $order->getGateway();
+
+		if ($gateway instanceof Ean) {
+			$creditnote->isEan = true;
+		}
 
 		if (!Craft::$app->getElements()->saveElement($creditnote)) {
 			return false;

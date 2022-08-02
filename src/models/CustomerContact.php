@@ -9,42 +9,42 @@ use QD\commerce\economic\helpers\Log;
 class CustomerContact extends Model
 {
 
-    public $name;
-    public $customerNumber;
+	public $name;
+	public $customerNumber;
 
-    public static function transformFromOrder($order)
-    {
-        //Check for business customer
-        $response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber(str_replace(' ', '', $billingAddress->businessTaxId));
-);
+	public static function transformFromOrder($order)
+	{
+		//Check for business customer
+		$billingAddress = $order->getBillingAddress();
+		$response = Economic::getInstance()->getCustomers()->getCustomerByVatNumber(str_replace(' ', '', $billingAddress->businessTaxId));
 
-        if ($response && isset($response->asObject()->collection[0])) {
-            $customerData = $response->asObject()->collection[0];
-        }
+		if ($response && isset($response->asObject()->collection[0])) {
+			$customerData = $response->asObject()->collection[0];
+		}
 
-        //Customer not created, do it now
+		//Customer not created, do it now
 
-        if (!$customerData) {
-            $response = Economic::getInstance()->getCustomers()->createCustomerFromOrder($order);
-            $customerData = $response->asObject();
-        }
+		if (!$customerData) {
+			$response = Economic::getInstance()->getCustomers()->createCustomerFromOrder($order);
+			$customerData = $response->asObject();
+		}
 
-        $customer = self::transform($customerData);
-        return $customer;
-    }
+		$customer = self::transform($customerData);
+		return $customer;
+	}
 
-    public static function transform($object)
-    {
-        $customerContact = new self();
-        $customerContact->customerNumber = $object->customerNumber;
-        $customerContact->name = $object->name;
+	public static function transform($object)
+	{
+		$customerContact = new self();
+		$customerContact->customerNumber = $object->customerNumber;
+		$customerContact->name = $object->name;
 
-        return $customerContact;
-    }
+		return $customerContact;
+	}
 
-    /** Helpers */
-    public function asArray()
-    {
-        return (array) $this;
-    }
+	/** Helpers */
+	public function asArray()
+	{
+		return (array) $this;
+	}
 }

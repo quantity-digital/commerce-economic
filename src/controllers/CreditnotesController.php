@@ -14,6 +14,8 @@ namespace QD\commerce\economic\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\helpers\Db;
+use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use QD\commerce\economic\Economic;
@@ -24,6 +26,7 @@ use QD\commerce\economic\helpers\Stock;
 use QD\commerce\economic\queue\jobs\CreateCreditnote;
 use QD\commerce\economic\queue\jobs\SendCreditnote;
 use QD\commerce\economic\records\CreditnoteRowRecord;
+use yii\helpers\Markdown;
 
 /**
  * @author    Len van Essen
@@ -76,12 +79,36 @@ class CreditnotesController extends Controller
 			));
 		}
 
+		if (!$creditnote->isRefunded) {
+			$refundDate = $request->getBodyParam('dateRefunded');
+			$creditnote->isRefunded = (bool)$request->getBodyParam('isRefunded');
+			$creditnote->dateRefunded = (isset($refundDate['date']) && $refundDate['date']) ? date('Y-m-d', strtotime($refundDate['date'])) : null;
+		}
+
+		//Credit note is already completed, so only save refund settings
 		if ($creditnote->isCompleted) {
+			Craft::$app->getElements()->saveElement($creditnote);
 			return;
 		}
 
-		$creditnote->isCompleted = (bool)$request->getBodyParam('send');
+
 		$creditnote->restock = (bool)$request->getBodyParam('restock');
+		$creditnote->regNr = $request->getBodyParam('regNr');
+		$creditnote->accountNumber = $request->getBodyParam('accountNumber');
+
+
+		$completeCreditnote = (bool)$request->getBodyParam('send');
+		if ($completeCreditnote && $creditnote->isEan && $creditnote->regNr && $creditnote->accountNumber) {
+			$creditnote->isCompleted = true;
+		}
+
+		if ($completeCreditnote && $creditnote->isEan && (!$creditnote->regNr || !$creditnote->accountNumber)) {
+			Craft::$app->getSession()->setError('Reg. nr. & account number is required to complete an EAN order');
+		}
+
+		if ($completeCreditnote && !$creditnote->isEan) {
+			$creditnote->isCompleted = true;
+		}
 
 		$rows = $request->getBodyParam('rows') ?: [];
 		foreach ($rows as $rowId => $data) {
@@ -121,6 +148,21 @@ class CreditnotesController extends Controller
 
 			if ($creditnote->restock) {
 				Economic::getInstance()->getCreditnotes()->restock($creditnote);
+			}
+
+			if ($creditnote->isEan) {
+
+				$settings = Economic::getInstance()->getEconomicSettings();
+				$to = Craft::parseEnv($settings['creditnoteNotificationEmail']);
+
+				if ($to) {
+					$template = Craft::$app->getMailer()->template;
+					$mailer = Economic::getInstance()->getEmails()->setupMail('New creditnote for EAN order', $to, [
+						'body' => Template::raw(Markdown::process('<h1>New creditnote</h1><p>A new creditnote for EAN order has been created.</p><p><a href="' . UrlHelper::cpUrl() . '/commerce/creditnotes/edit/' . $creditnote->id . '">Clike here to go to creditnote</a></p>')),
+					], $template);
+
+					$mailer->send();
+				}
 			}
 		}
 	}

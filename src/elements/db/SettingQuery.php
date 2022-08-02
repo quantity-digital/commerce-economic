@@ -46,6 +46,7 @@ class SettingQuery extends ElementQuery
 			'economic_settings.convertAmount',
 			'economic_settings.shippingProductnumbers',
 			'economic_settings.discountProductnumber',
+			'economic_settings.creditnoteNotificationEmail',
 		]);
 
 		return parent::beforePrepare();

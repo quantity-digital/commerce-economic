@@ -41,6 +41,11 @@ class CreditnoteQuery extends ElementQuery
 			'economic_creditnotes.sent',
 			'economic_creditnotes.invoiceNumber',
 			'economic_creditnotes.draftInvoiceNumber',
+			'economic_creditnotes.isEan',
+			'economic_creditnotes.regNr',
+			'economic_creditnotes.accountNumber',
+			'economic_creditnotes.isRefunded',
+			'economic_creditnotes.dateRefunded',
 		]);
 
 		$this->subQuery->where(['isCompleted' => $this->isCompleted]);

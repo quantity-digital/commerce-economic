@@ -56,13 +56,17 @@ class Creditnote extends Element
 
 	public $isCompleted;
 
+	public $isEan;
+	public $regNr;
+	public $accountNumber;
+	public $isRefunded;
+	public $dateRefunded;
+
 	/**
 	 * @var array
 	 */
 	private $_rows;
 	private $_total;
-
-
 
 
 	/**
@@ -147,6 +151,11 @@ class Creditnote extends Element
 		$record->sent = $this->sent;
 		$record->isCompleted = $this->isCompleted;
 		$record->restock = $this->restock;
+		$record->isEan = $this->isEan;
+		$record->regNr = $this->regNr;
+		$record->accountNumber = $this->accountNumber;
+		$record->isRefunded = $this->isRefunded;
+		$record->dateRefunded = $this->dateRefunded;
 
 		$record->save(false);
 

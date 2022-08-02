@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## 1.1.11 - 2022-05-xx
+## 1.1.12 - 2022-08-02
+
+### Added
+
+* Creditnotes for orders, paid using the EAN gateway, now requires account number and registration number for bank account.
+
+## 1.1.11 - 2022-05-05
 
 ### Fixed
 

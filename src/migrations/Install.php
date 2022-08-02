@@ -105,6 +105,11 @@ class Install extends Migration
 				'sent' => $this->boolean()->defaultValue(false), //Is it sent to the customer
 				'restock' => $this->boolean()->defaultValue(false),
 				'isCompleted' => $this->boolean(),
+				'isEan' => $this->boolean(),
+				'regNr' => $this->string(),
+				'accountNumber' => $this->string(),
+				'isRefunded' => $this->boolean(),
+				'dateRefunded' => $this->dateTime(),
 				'dateSent' => $this->dateTime(),
 				'dateCreated' => $this->dateTime()->notNull(),
 				'dateUpdated' => $this->dateTime()->notNull(),
