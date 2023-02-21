@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.13 - 2023-02-21
+
+### Added
+
+* Failed invoices and creditnotes, not start product sync to ensure missing products is not the issue
+
 ## 1.1.12 - 2022-08-02
 
 ### Added

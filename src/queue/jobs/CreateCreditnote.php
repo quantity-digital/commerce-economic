@@ -54,6 +54,14 @@ class CreateCreditnote extends BaseJob
 
 			if (!$response) {
 				Log::error('Create request failed on creditnote with id ' . $this->creditnoteId);
+				$lines = Economic::getInstance()->getCreditnoteRows()->getAllRowsByCreditnoteId($this->creditnoteId);
+				foreach ($lines as $line) {
+					Craft::$app->getQueue()->delay(10)->push(new SyncVariant(
+						[
+							'variantId' => $line->sku,
+						]
+					));
+				}
 				$this->reAddToQueue();
 				$this->setProgress($queue, 1);
 				return;

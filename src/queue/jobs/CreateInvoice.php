@@ -54,6 +54,14 @@ class CreateInvoice extends BaseJob
 
 			if (!$response) {
 				Log::error('Create request failed on order with id ' . $this->orderId);
+				$lines = $order->lineItems();
+				foreach ($lines as $line) {
+					Craft::$app->getQueue()->delay(10)->push(new SyncVariant(
+						[
+							'variantId' => $line->purchasableId,
+						]
+					));
+				}
 				$this->reAddToQueue();
 				$this->setProgress($queue, 1);
 				return;
