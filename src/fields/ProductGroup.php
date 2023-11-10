@@ -26,7 +26,7 @@ class ProductGroup extends Field
         //     Craft::$app->getView()->setInitialDeltaValue($this->handle, null);
         // }
 
-        $productGroups = [];
+        $productGroups = "No response from E-conomic";
 
         $response = Economic::getInstance()->getApi()->getAllProductGroups();
 
