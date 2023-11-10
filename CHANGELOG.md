@@ -1,6 +1,12 @@
-# Release Notes for E-conomic for Craft Commerce
+# Changelog
 
 All notable changes to this project will be documented in this file.
+
+### 1.1.14 - 2023-11-10
+
+### Bug Fixes
+
+* Fallback for ProductGroup input on product pages failed when E-conomic call failed ([5aaeecd](https://github.com/quantity-digital/commerce-economic/commit/5aaeecd3b1c22cd10597688d93ce12db3e81f15a))
 
 ## 1.1.13 - 2023-02-21
 
