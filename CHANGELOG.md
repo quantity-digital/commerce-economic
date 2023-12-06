@@ -2,12 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [1.0.2](https://github.com/quantity-digital/commerce-economic/compare/v1.0.1...v1.0.2) (2023-12-06)
-
+### 1.1.15 - 2023-12-06
 
 ### Bug Fixes
 
-* adjusted fallback for productGroups ([d63cb95](https://github.com/quantity-digital/commerce-economic/commit/d63cb953b9b3341ebac5e9b0bcce28a0609d5c0d))
+- adjusted fallback for productGroups ([d63cb95](https://github.com/quantity-digital/commerce-economic/commit/d63cb953b9b3341ebac5e9b0bcce28a0609d5c0d))
 
 ### 1.1.14 - 2023-11-10
 
