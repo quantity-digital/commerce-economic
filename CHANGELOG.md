@@ -2,13 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### 1.0.1 (2023-12-06)
-
-
-### Bug Fixes
-
-* Fallback for ProductGroup input on product pages failed when E-conomic call failed ([5aaeecd](https://github.com/quantity-digital/commerce-economic/commit/5aaeecd3b1c22cd10597688d93ce12db3e81f15a))
-
 ### 1.1.14 - 2023-11-10
 
 ### Bug Fixes
