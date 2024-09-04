@@ -6,7 +6,6 @@ use Craft;
 use craft\base\Component;
 use Lenius\Economic\RestClient;
 use QD\commerce\economic\Economic;
-use QD\commerce\economic\helpers\Log;
 use QD\commerce\economic\models\Product;
 
 class Api extends Component
@@ -81,17 +80,24 @@ class Api extends Component
 
 	public function syncVariant(Product $variant)
 	{
-		$testResponse = $this->client->request->get('products/' . urlencode($variant->productNumber));
+        // Exists
+        $variantExists = $this->client->request->get('products/' . urlencode($variant->productNumber));
 
-		if ($testResponse->httpStatus() == 200) {
-			$response = $this->client->request->put('products/' . urlencode($variant->productNumber), $variant->asArray());
-		} else {
-			$response = $this->client->request->post('products', $variant->asArray());
-		}
+        // If returned status is 200, then the variant exists, therefore we can return true
+        if($variantExists->httpStatus() == 200) {
+						// $response = $this->client->request->put('products/' . urlencode($variant->productNumber), $variant->asArray());
+            return true;
+        }
 
-		$status = $response->httpStatus();
-		if ($status == 201 || $status == 200) {
-			return $response;
-		}
+        // Create variant in e-conomic
+        $response = $this->client->request->post('products', $variant->asArray());
+        $status = $response->httpStatus();
+
+        // If returned status is 201, then the variant was created successfully
+        if ($status == 201 || $status == 200) {
+            return true;
+        }
+
+        return false;
 	}
 }

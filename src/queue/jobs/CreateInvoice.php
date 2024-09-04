@@ -8,7 +8,6 @@ use craft\queue\BaseJob;
 use Exception;
 use QD\commerce\economic\Economic;
 use QD\commerce\economic\helpers\Log;
-use yii\queue\RetryableJobInterface;
 
 class CreateInvoice extends BaseJob
 {
@@ -16,12 +15,6 @@ class CreateInvoice extends BaseJob
      * @var int Order ID
      */
     public $orderId;
-
-    public function canRetry($attempt, $error)
-    {
-        $attempts = 5;
-        return $attempt < $attempts;
-    }
 
     public function getTtr()
     {
@@ -37,14 +30,12 @@ class CreateInvoice extends BaseJob
 
             if (!$order) {
                 Log::error('Unable to fetch order with id' . $this->orderId);
-                $this->setProgress($queue, 1);
                 return;
             }
 
 
             if ($order->invoiceNumber) {
-                Log::error('Order has alreade an invoice number, on order with id ' . $this->orderId);
-                $this->setProgress($queue, 1);
+                Log::error('Order has already an invoice number, on order with id ' . $this->orderId);
                 return;
             }
 

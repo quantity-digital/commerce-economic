@@ -5,22 +5,15 @@ namespace QD\commerce\economic\queue\jobs;
 use Craft;
 use craft\commerce\elements\Variant;
 use craft\queue\BaseJob;
+use Exception;
 use QD\commerce\economic\Economic;
-use QD\commerce\economic\helpers\Log;
-use yii\queue\RetryableJobInterface;
 
-class SyncVariant extends BaseJob implements RetryableJobInterface
+class SyncVariant extends BaseJob
 {
     /**
      * @var int Variant ID
      */
     public $variantId;
-
-    public function canRetry($attempt, $error)
-    {
-        $attempts = 5;
-        return $attempt < $attempts;
-    }
 
     public function getTtr()
     {
@@ -30,29 +23,24 @@ class SyncVariant extends BaseJob implements RetryableJobInterface
     public function execute($queue)
     {
         try {
+            // Find the variant
             $this->setProgress($queue, 0.05, 'Finding variant');
             $variant = Variant::find()->id($this->variantId)->one();
 
             if (!$variant) {
-                $this->setProgress($queue, 1);
                 return;
             }
 
+            // Sync variant to economic
             $this->setProgress($queue, 0.1, 'Syncing to E-conomic');
             $response = Economic::getInstance()->getVariants()->syncToEconomic($variant);
 
-            $this->setProgress($queue, 0.5);
-
+            // If variant add failed, throw error
             if (!$response) {
-                $this->reAddToQueue();
-                $this->setProgress($queue, 1);
-                return;
+                throw new Exception("Failed to add variant", 1);
             }
-
-            $this->setProgress($queue, 1);
         } catch (\Throwable $th) {
-            $this->reAddToQueue();
-            $this->setProgress($queue, 1);
+            throw new Exception($th->getMessage() ?? '', 1);
         }
     }
 
@@ -66,7 +54,7 @@ class SyncVariant extends BaseJob implements RetryableJobInterface
 
     protected function reAddToQueue()
     {
-        Craft::$app->getQueue()->delay(300)->push(new SyncVariant(
+        Craft::$app->getQueue()->push(new SyncVariant(
             [
                 'variantId' => $this->variantId,
             ]
