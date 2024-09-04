@@ -54,7 +54,7 @@ class CreateInvoice extends BaseJob
             $this->setProgress($queue, 0.5);
 
             if (!$response) {
-                $lines = $order->lineItems();
+                $lines = $order->getLineItems();
                 foreach ($lines as $line) {
                 	Craft::$app->getQueue()->push(new SyncVariant(
                 		[
