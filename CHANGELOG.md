@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.1.17 - 2024-09-04
+
+### Bug Fixes
+
+- Added variant sync functionallity, on invoice creation
+
 ### 1.1.16 - 2023-12-06
 
 ### Bug Fixes

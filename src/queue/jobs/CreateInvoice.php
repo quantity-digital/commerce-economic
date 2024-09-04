@@ -54,20 +54,16 @@ class CreateInvoice extends BaseJob
             $this->setProgress($queue, 0.5);
 
             if (!$response) {
-                Log::error('Create request failed on order with id ' . $this->orderId);
-                throw new Exception("Create request failed on order with id: $this->orderId", 1);
-
-                // $lines = $order->lineItems();
-                // foreach ($lines as $line) {
-                // 	Craft::$app->getQueue()->delay(10)->push(new SyncVariant(
-                // 		[
-                // 			'variantId' => $line->purchasableId,
-                // 		]
-                // 	));
-                // }
-                // $this->reAddToQueue();
-                // $this->setProgress($queue, 1);
-                // return;
+                $lines = $order->lineItems();
+                foreach ($lines as $line) {
+                	Craft::$app->getQueue()->push(new SyncVariant(
+                		[
+                			'variantId' => $line->purchasableId,
+                		]
+                	));
+                }
+                $this->reAddToQueue();
+                return;
             }
 
             $this->setProgress($queue, 0.90);
@@ -94,10 +90,10 @@ class CreateInvoice extends BaseJob
 
             $this->setProgress($queue, 1);
         } catch (\Throwable $th) {
-            $this->reAddToQueue();
+            // $this->reAddToQueue();
             Log::error('Queue failed with an error');
             Log::info(\print_r($th, true));
-            $this->setProgress($queue, 1);
+            throw new Exception($th->getMessage() ?? 'Failed to sync invoice', 1);
         }
     }
 
