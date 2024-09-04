@@ -4,6 +4,7 @@ namespace QD\commerce\economic\services;
 
 use Craft;
 use craft\base\Component;
+use Exception;
 use Lenius\Economic\RestClient;
 use QD\commerce\economic\Economic;
 use QD\commerce\economic\models\Product;
@@ -96,6 +97,11 @@ class Api extends Component
         // If returned status is 201, then the variant was created successfully
         if ($status == 201 || $status == 200) {
             return true;
+        }
+
+        if($status == 400) {
+            $object = $response->asObject();
+            throw new Exception(implode(',', $object->errors), 1);
         }
 
         return false;

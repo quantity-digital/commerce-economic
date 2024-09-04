@@ -15,6 +15,7 @@ class CreateInvoice extends BaseJob
      * @var int Order ID
      */
     public $orderId;
+    public $retried = false;
 
     public function getTtr()
     {
@@ -44,16 +45,9 @@ class CreateInvoice extends BaseJob
             $response = Economic::getInstance()->getInvoices()->createFromOrder($order);
             $this->setProgress($queue, 0.5);
 
+            // If we get no response, we just retry the queue
             if (!$response) {
-                $lines = $order->getLineItems();
-                foreach ($lines as $line) {
-                	Craft::$app->getQueue()->push(new SyncVariant(
-                		[
-                			'variantId' => $line->purchasableId,
-                		]
-                	));
-                }
-                $this->reAddToQueue();
+                $this->reAddToQueue(false, 300);
                 return;
             }
 
@@ -81,9 +75,24 @@ class CreateInvoice extends BaseJob
 
             $this->setProgress($queue, 1);
         } catch (\Throwable $th) {
-            // $this->reAddToQueue();
-            Log::error('Queue failed with an error');
-            Log::info(\print_r($th, true));
+
+            // If we get thrown an error, try syncing variant and retrying
+            if(!$this->retried)
+            {
+                $lines = $order->getLineItems();
+                foreach ($lines as $line) {
+                    Craft::$app->getQueue()->push(new SyncVariant(
+                        [
+                            'variantId' => $line->purchasableId,
+                        ]
+                    ));
+                }
+
+                // Readd the queue, if we haved retried with the variants added
+                $this->reAddToQueue(true, 3600);
+                return;
+            }
+
             throw new Exception($th->getMessage() ?? 'Failed to sync invoice', 1);
         }
     }
@@ -96,11 +105,12 @@ class CreateInvoice extends BaseJob
         return 'Create invoice in e-conomic';
     }
 
-    protected function reAddToQueue()
+    protected function reAddToQueue($retried = false, $delay = 0)
     {
-        Craft::$app->getQueue()->delay(3600)->push(new CreateInvoice(
+        Craft::$app->getQueue()->delay($delay)->push(new CreateInvoice(
             [
                 'orderId' => $this->orderId,
+                'retried' => $retried,
             ]
         ));
     }

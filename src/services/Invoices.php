@@ -5,6 +5,7 @@ namespace QD\commerce\economic\services;
 use Craft;
 use craft\base\Component;
 use craft\commerce\elements\Order;
+use Exception;
 use QD\commerce\economic\Economic;
 use QD\commerce\economic\events\ApiResponseEvent;
 use QD\commerce\economic\events\InvoiceEvent;
@@ -50,6 +51,12 @@ class Invoices extends Component
 
 		if ($status == 201) {
 			return $response;
+		}
+
+		if($status == 400)
+		{
+				$object = $response->asObject();
+				throw new Exception(implode(',', $object->errors), 1);
 		}
 
 		//Log error
