@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.1.21 - 2024-09-05
+
+- Hhandled mbug where salesprices had to many decimal points
+
 ### 1.1.20 - 2024-09-04
 
 - Handled queue error throws better

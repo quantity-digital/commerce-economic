@@ -9,14 +9,8 @@ use Exception;
 use QD\commerce\economic\Economic;
 use QD\commerce\economic\events\ApiResponseEvent;
 use QD\commerce\economic\events\InvoiceEvent;
-use QD\commerce\economic\gateways\Ean;
 use QD\commerce\economic\helpers\Log;
-use QD\commerce\economic\models\Customer;
-use QD\commerce\economic\models\CustomerContact;
 use QD\commerce\economic\models\Invoice;
-use QD\commerce\economic\models\Layout;
-use QD\commerce\economic\models\PaymentTerms;
-use QD\commerce\economic\models\Recipient;
 use QD\commerce\economic\queue\jobs\CreateInvoice;
 
 class Invoices extends Component
@@ -56,7 +50,7 @@ class Invoices extends Component
 		if($status == 400)
 		{
 				$object = $response->asObject();
-				throw new Exception(implode(',', $object->errors), 1);
+				throw new Exception(json_encode($object->errors,JSON_UNESCAPED_UNICODE), 1);
 		}
 
 		//Log error

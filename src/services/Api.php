@@ -81,29 +81,31 @@ class Api extends Component
 
 	public function syncVariant(Product $variant)
 	{
-        // Exists
-        $variantExists = $this->client->request->get('products/' . urlencode($variant->productNumber));
+		// Exists
+		$variantExists = $this->client->request->get('products/' . urlencode($variant->productNumber));
 
-        // If returned status is 200, then the variant exists, therefore we can return true
-        if($variantExists->httpStatus() == 200) {
-						// $response = $this->client->request->put('products/' . urlencode($variant->productNumber), $variant->asArray());
-            return true;
-        }
+		// If returned status is 200, then the variant exists, therefore we can return true
+		if($variantExists->httpStatus() == 200) {
+			// Update variant in e-conomic
+			$response = $this->client->request->put('products/' . urlencode($variant->productNumber), $variant->asArray());
+		}
+		else{
+			// Create variant in e-conomic
+			$response = $this->client->request->post('products', $variant->asArray());
+		}
 
-        // Create variant in e-conomic
-        $response = $this->client->request->post('products', $variant->asArray());
-        $status = $response->httpStatus();
+		
+		// If returned status is 201, then the variant was created successfully
+		$status = $response->httpStatus();
+		if ($status == 201 || $status == 200) {
+			return true;
+		}
 
-        // If returned status is 201, then the variant was created successfully
-        if ($status == 201 || $status == 200) {
-            return true;
-        }
+		if($status == 400) {
+			$object = $response->asObject();
+			throw new Exception(json_encode($object->errors, JSON_UNESCAPED_UNICODE), 1);
+		}
 
-        if($status == 400) {
-            $object = $response->asObject();
-            throw new Exception(implode(',', $object->errors), 1);
-        }
-
-        return false;
+		return false;
 	}
 }
